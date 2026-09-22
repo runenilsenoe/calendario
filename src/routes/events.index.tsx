@@ -1,0 +1,172 @@
+import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { DEFAULT_CATEGORIES, dateLabel, fetchEvents } from "@/lib/programio";
+import { EventForm, type EventFormValues } from "@/components/EventForm";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export const Route = createFileRoute("/events/")({
+  head: () => ({
+    meta: [
+      { title: "Your events — Programio" },
+      { name: "description", content: "All the event programs you are building in Programio." },
+      { property: "og:title", content: "Your events — Programio" },
+      { property: "og:description", content: "Manage your Programio event programs." },
+    ],
+  }),
+  component: EventsPage,
+});
+
+function EventsPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+
+  const events = useQuery({
+    queryKey: ["events"],
+    queryFn: fetchEvents,
+    enabled: !!user,
+  });
+
+  const create = useMutation({
+    mutationFn: async (values: EventFormValues) => {
+      const { data, error } = await supabase
+        .from("events")
+        .insert({
+          user_id: user!.id,
+          name: values.name,
+          subtitle: values.subtitle || null,
+          start_date: values.start_date,
+          end_date: values.end_date,
+          location: values.location || null,
+          logo_url: values.logo_url || null,
+          accent_color: values.accent_color,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      await supabase.from("categories").insert(
+        DEFAULT_CATEGORIES.map((c) => ({
+          user_id: user!.id,
+          event_id: data.id,
+          name: c.name,
+          color: c.color,
+          icon: c.icon,
+        })),
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["events"] });
+      setOpen(false);
+      toast.success("Event created");
+      navigate({ to: "/events/$id", params: { id: data.id } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (!loading && !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="text-center">
+          <p className="text-muted-foreground">Sign in to manage your events.</p>
+          <Button asChild className="mt-4">
+            <Link to="/auth">Sign in</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="mx-auto flex max-w-3xl items-center justify-between px-6 py-6">
+        <Link to="/" className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
+          Programio
+        </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            navigate({ to: "/" });
+          }}
+        >
+          Sign out
+        </Button>
+      </header>
+
+      <main className="mx-auto max-w-3xl px-6 pb-24">
+        <div className="flex items-end justify-between gap-4">
+          <h1 className="font-display text-4xl">Your events</h1>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>New event</Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Create event</DialogTitle>
+              </DialogHeader>
+              <EventForm
+                submitLabel="Create event"
+                busy={create.isPending}
+                onSubmit={(v) => create.mutate(v)}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="mt-8 space-y-3">
+          {events.isLoading || loading ? (
+            <>
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </>
+          ) : events.error ? (
+            <p className="text-sm text-destructive">Could not load events. Please refresh.</p>
+          ) : (events.data ?? []).length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+              <p className="font-display text-2xl">No events yet</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Create your first event to start building the program.
+              </p>
+            </div>
+          ) : (
+            events.data!.map((ev) => (
+              <Link
+                key={ev.id}
+                to="/events/$id"
+                params={{ id: ev.id }}
+                className="block rounded-2xl border border-border bg-card p-6 transition-colors hover:bg-accent"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="h-3 w-3 rounded-full bg-primary" aria-hidden />
+
+                  <h2 className="text-2xl">
+                    {ev.name} {ev.subtitle ? <span className="text-muted-foreground">{ev.subtitle}</span> : null}
+                  </h2>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {dateLabel(ev.start_date)} – {dateLabel(ev.end_date)}
+                  {ev.location ? ` · ${ev.location}` : ""}
+                </p>
+              </Link>
+            ))
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
