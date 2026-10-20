@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
-import { useAuth } from "@/hooks/useAuth";
+import { signIn, signUp } from "@/lib/api";
+import { ME_KEY, useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,10 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Programio" },
-      { name: "description", content: "Sign in to build and export your event program with Programio." },
+      {
+        name: "description",
+        content: "Sign in to build and export your event program with Programio.",
+      },
       { property: "og:title", content: "Sign in — Programio" },
       { property: "og:description", content: "Access your Programio events." },
     ],
@@ -22,9 +25,10 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -36,36 +40,16 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        toast.success("Account created. You're signed in.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
+      const data = { identifier, password };
+      const me = mode === "signup" ? await signUp({ data }) : await signIn({ data });
+      if (mode === "signup") toast.success("Account created. You're signed in.");
+      qc.setQueryData(ME_KEY, me);
       navigate({ to: "/events" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setBusy(false);
     }
-  }
-
-  async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Google sign-in failed");
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/events" });
   }
 
   return (
@@ -83,14 +67,13 @@ function AuthPage() {
 
         <form onSubmit={submit} className="mt-8 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="identifier">Email or phone number</Label>
             <Input
-              id="email"
-              type="email"
-              autoComplete="email"
+              id="identifier"
+              autoComplete="username"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -100,7 +83,7 @@ function AuthPage() {
               type="password"
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
               required
-              minLength={6}
+              minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -109,10 +92,6 @@ function AuthPage() {
             {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Sign up"}
           </Button>
         </form>
-
-        <Button variant="outline" className="mt-3 w-full" onClick={google}>
-          Continue with Google
-        </Button>
 
         <button
           type="button"

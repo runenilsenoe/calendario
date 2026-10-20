@@ -3,7 +3,7 @@ import { toJpeg, toPng } from "html-to-image";
 const IOS =
   typeof navigator !== "undefined" &&
   (/iP(hone|ad|od)/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && (navigator as any).maxTouchPoints > 1));
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
 // iOS/Safari canvases are capped (~16.7M px). Keep the render inside a safe budget.
 const MAX_PIXELS = IOS ? 12_000_000 : 40_000_000;
@@ -107,7 +107,6 @@ export async function exportNodeToImage(
   setTimeout(() => URL.revokeObjectURL(url), 300_000);
   return "manual";
 }
-
 
 /** Renders a node into a paginated A4 portrait PDF. */
 export async function exportNodeToPdf(node: HTMLElement, filename: string): Promise<ExportResult> {

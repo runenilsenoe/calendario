@@ -7,10 +7,9 @@ import {
   fetchCollaborators,
   removeCollaborator,
   setEventPublic,
-  shareUrl,
   updateCollaboratorRole,
-  type EventRow,
-} from "@/lib/programio";
+} from "@/lib/api";
+import { shareUrl, type EventRow } from "@/lib/programio";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -36,7 +35,7 @@ export function ShareDialog({
   isOwner: boolean;
 }) {
   const qc = useQueryClient();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [role, setRole] = useState<"viewer" | "editor">("editor");
   const [copied, setCopied] = useState(false);
 
@@ -44,7 +43,7 @@ export function ShareDialog({
 
   const collabs = useQuery({
     queryKey: ["collaborators", event.id],
-    queryFn: () => fetchCollaborators(event.id),
+    queryFn: () => fetchCollaborators({ data: event.id }),
     enabled: open,
   });
 
@@ -54,32 +53,30 @@ export function ShareDialog({
   };
 
   const togglePublic = useMutation({
-    mutationFn: (v: boolean) => setEventPublic(event.id, v),
+    mutationFn: (v: boolean) => setEventPublic({ data: { eventId: event.id, isPublic: v } }),
     onSuccess: refresh,
     onError: (e: Error) => toast.error(e.message),
   });
 
   const invite = useMutation({
-    mutationFn: () => addCollaborator(event.id, event.user_id, email, role),
+    mutationFn: () => addCollaborator({ data: { eventId: event.id, identifier, role } }),
     onSuccess: () => {
-      setEmail("");
+      setIdentifier("");
       refresh();
       toast.success("Collaborator invited");
     },
-    onError: (e: Error) =>
-      toast.error(
-        e.message.includes("duplicate") ? "That person is already invited." : e.message,
-      ),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const changeRole = useMutation({
-    mutationFn: ({ id, r }: { id: string; r: "viewer" | "editor" }) => updateCollaboratorRole(id, r),
+    mutationFn: ({ id, r }: { id: string; r: "viewer" | "editor" }) =>
+      updateCollaboratorRole({ data: { eventId: event.id, id, role: r } }),
     onSuccess: refresh,
     onError: (e: Error) => toast.error(e.message),
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => removeCollaborator(id),
+    mutationFn: (id: string) => removeCollaborator({ data: { eventId: event.id, id } }),
     onSuccess: () => {
       refresh();
       toast.success("Access removed");
@@ -136,7 +133,7 @@ export function ShareDialog({
           <div>
             <p className="font-medium">Invite collaborators</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              They get access with the email address they sign in with.
+              They get access with the email address or phone number they sign in with.
             </p>
           </div>
 
@@ -145,16 +142,15 @@ export function ShareDialog({
               className="flex flex-wrap gap-2"
               onSubmit={(e) => {
                 e.preventDefault();
-                if (!email.trim()) return;
+                if (!identifier.trim()) return;
                 invite.mutate();
               }}
             >
               <Input
-                type="email"
                 required
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com or +47 912 34 567"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="min-w-[12rem] flex-1"
               />
               <Select value={role} onValueChange={(v) => setRole(v as "viewer" | "editor")}>
@@ -180,7 +176,7 @@ export function ShareDialog({
                 key={c.id}
                 className="flex items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2"
               >
-                <span className="truncate text-sm">{c.email}</span>
+                <span className="truncate text-sm">{c.identifier}</span>
                 <div className="flex items-center gap-2">
                   {isOwner ? (
                     <>
@@ -201,7 +197,7 @@ export function ShareDialog({
                       <Button
                         size="icon"
                         variant="ghost"
-                        aria-label={`Remove ${c.email}`}
+                        aria-label={`Remove ${c.identifier}`}
                         onClick={() => remove.mutate(c.id)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -220,8 +216,8 @@ export function ShareDialog({
         </section>
 
         <p className="text-xs text-muted-foreground">
-          <Label className="text-xs">Editors</Label> can change the program. Viewers can only look at
-          it.
+          <Label className="text-xs">Editors</Label> can change the program. Viewers can only look
+          at it.
         </p>
       </DialogContent>
     </Dialog>

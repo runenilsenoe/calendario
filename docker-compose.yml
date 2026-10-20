@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://programio:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/programio
+      DEFAULT_PHONE_PREFIX: ${DEFAULT_PHONE_PREFIX:-}
+      ALLOW_SIGNUP: ${ALLOW_SIGNUP:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: programio
+      POSTGRES_DB: programio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U programio"]
+      interval: 5s
+      retries: 10
+
+  # Reverse proxy with automatic HTTPS (Let's Encrypt) for DOMAIN.
+  # Set DOMAIN=:80 to serve plain HTTP, e.g. before DNS is pointed at the VM.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    command: caddy reverse-proxy --from ${DOMAIN:?set DOMAIN in .env} --to app:3000
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+    depends_on:
+      - app
+
+volumes:
+  pgdata:
+  caddy_data:

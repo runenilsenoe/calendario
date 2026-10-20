@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  dateLabel,
-  shortDateLabel,
-  weekdayName,
-  weekdayNameShort,
-} from "@/lib/programio";
+import { dateLabel, shortDateLabel, weekdayName, weekdayNameShort } from "@/lib/programio";
 
 type Props = {
   days: string[];
@@ -48,10 +43,7 @@ export function DaySelector({ days, activeDay, onSelect, locale = "nb-NO", class
         className="pointer-events-none absolute left-0 top-0 flex h-0 gap-2 overflow-hidden opacity-0"
       >
         {days.map((d) => (
-          <span
-            key={d}
-            className="whitespace-nowrap rounded-full border px-3 py-1.5 text-sm"
-          >
+          <span key={d} className="whitespace-nowrap rounded-full border px-3 py-1.5 text-sm">
             {`${weekdayName(d, locale)} ${dateLabel(d, locale)}`}
           </span>
         ))}
@@ -81,4 +73,3 @@ export function DaySelector({ days, activeDay, onSelect, locale = "nb-NO", class
     </div>
   );
 }
-

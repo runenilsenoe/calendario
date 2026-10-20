@@ -11,7 +11,13 @@ import {
   type EventRow,
 } from "@/lib/programio";
 import type { ExportOptions } from "./DayPoster";
-import { accentColorFor, cardVisual, paletteColorFor, posterTheme, spacedTicks } from "@/lib/poster-style";
+import {
+  accentColorFor,
+  cardVisual,
+  paletteColorFor,
+  posterTheme,
+  spacedTicks,
+} from "@/lib/poster-style";
 import { wrapLines } from "@/components/exports/DayPoster";
 
 type Props = {
@@ -39,7 +45,6 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
   const rootRef = useRef<HTMLDivElement>(null);
 
   const setRefs = (node: HTMLDivElement | null) => {
-
     rootRef.current = node;
     if (typeof ref === "function") ref(node);
     else if (ref) ref.current = node;
@@ -111,8 +116,6 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
   // more room rather than letting cards run off the poster.
   const canvasHeight = Math.max(HEIGHT, Math.ceil(chromeH + gridHeight));
 
-
-
   return (
     <div
       ref={setRefs}
@@ -165,16 +168,40 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
             ) : null}
           </div>
           <div style={{ fontSize: 20 * f, color: MUTED, marginTop: 6 }}>
-            {dateLabel(days[0]!, options.locale)} – {dateLabel(days[days.length - 1]!, options.locale)}
+            {dateLabel(days[0]!, options.locale)} –{" "}
+            {dateLabel(days[days.length - 1]!, options.locale)}
             {options.includeLocation && event.location ? ` · ${event.location}` : ""}
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 20, flexShrink: 0 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, maxWidth: 420, justifyContent: "flex-end" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 10,
+              maxWidth: 420,
+              justifyContent: "flex-end",
+            }}
+          >
             {categories.map((c, i) => (
-              <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 16, color: MUTED }}>
+              <div
+                key={c.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 16,
+                  color: MUTED,
+                }}
+              >
                 <span
-                  style={{ width: 12, height: 12, borderRadius: 4, background: paletteColorFor(options.palette, i, c.color), display: "inline-block" }}
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: 4,
+                    background: paletteColorFor(options.palette, i, c.color),
+                    display: "inline-block",
+                  }}
                 />
                 {c.name}
               </div>
@@ -192,11 +219,16 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
       </header>
 
       <main
-        style={{ position: "relative", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}
+        style={{
+          position: "relative",
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
       >
-
         <div style={{ position: "relative", width: "100%", height: gridHeight }}>
-
           {days.map((key) => {
             const items = byDay.get(key) ?? [];
             const blocks = aligned.perDay.get(key) ?? [];
@@ -254,7 +286,10 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
                   </div>
                 ) : (
                   <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
-                    {(options.includeGrid === false ? [] : spacedTicks(aligned.ticks, scale, 22)).map((t) => (
+                    {(options.includeGrid === false
+                      ? []
+                      : spacedTicks(aligned.ticks, scale, 22)
+                    ).map((t) => (
                       <div
                         key={t.label}
                         style={{
@@ -347,12 +382,24 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
                             {el.title}
                           </div>
                           {options.includeSubtitle && el.subtitle ? (
-                            <div style={{ fontSize: (tight ? 16 : 18) * f, opacity: 0.75, marginTop: 3 }}>
+                            <div
+                              style={{
+                                fontSize: (tight ? 16 : 18) * f,
+                                opacity: 0.75,
+                                marginTop: 3,
+                              }}
+                            >
                               {el.subtitle}
                             </div>
                           ) : null}
                           {options.includeLocation && el.location ? (
-                            <div style={{ fontSize: (tight ? 15 : 17) * f, opacity: 0.7, marginTop: 3 }}>
+                            <div
+                              style={{
+                                fontSize: (tight ? 15 : 17) * f,
+                                opacity: 0.7,
+                                marginTop: 3,
+                              }}
+                            >
                               ◦ {el.location}
                             </div>
                           ) : null}
@@ -368,21 +415,23 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
       </main>
 
       {showFooter ? (
-      <div
-        style={{
-          position: "relative",
-          marginTop: "auto",
-          paddingTop: 14,
-          borderTop: `1px solid ${theme.line}`,
-          display: "flex",
-          justifyContent: "space-between",
-          color: MUTED,
-          fontSize: 18 * f,
-        }}
-      >
-        <span>{days.length} days · {elements.length} program items</span>
-        <span style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}>Programio</span>
-      </div>
+        <div
+          style={{
+            position: "relative",
+            marginTop: "auto",
+            paddingTop: 14,
+            borderTop: `1px solid ${theme.line}`,
+            display: "flex",
+            justifyContent: "space-between",
+            color: MUTED,
+            fontSize: 18 * f,
+          }}
+        >
+          <span>
+            {days.length} days · {elements.length} program items
+          </span>
+          <span style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}>Programio</span>
+        </div>
       ) : null}
     </div>
   );

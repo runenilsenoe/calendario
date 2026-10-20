@@ -147,25 +147,53 @@ export function EventForm({
     >
       <div className="space-y-2">
         <Label htmlFor="name">Event name *</Label>
-        <Input id="name" required value={values.name} onChange={set("name")} placeholder="Nyttårscamp" />
+        <Input
+          id="name"
+          required
+          value={values.name}
+          onChange={set("name")}
+          placeholder="Nyttårscamp"
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="subtitle">Subtitle</Label>
-        <Input id="subtitle" value={values.subtitle} onChange={set("subtitle")} placeholder="2025" />
+        <Input
+          id="subtitle"
+          value={values.subtitle}
+          onChange={set("subtitle")}
+          placeholder="2025"
+        />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label htmlFor="start_date">Start date *</Label>
-          <Input id="start_date" type="date" required value={values.start_date} onChange={handleStartDateChange} />
+          <Input
+            id="start_date"
+            type="date"
+            required
+            value={values.start_date}
+            onChange={handleStartDateChange}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="end_date">End date *</Label>
-          <Input id="end_date" type="date" required value={values.end_date} onChange={handleEndDateChange} />
+          <Input
+            id="end_date"
+            type="date"
+            required
+            value={values.end_date}
+            onChange={handleEndDateChange}
+          />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="location">Location</Label>
-        <Input id="location" value={values.location} onChange={set("location")} placeholder="Oslofjord" />
+        <Input
+          id="location"
+          value={values.location}
+          onChange={set("location")}
+          placeholder="Oslofjord"
+        />
       </div>
       <div className="space-y-2">
         <Label>Logo</Label>
@@ -188,12 +216,7 @@ export function EventForm({
                 >
                   Change
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRemoveLogo}
-                >
+                <Button type="button" variant="outline" size="sm" onClick={handleRemoveLogo}>
                   Remove
                 </Button>
               </div>
@@ -208,7 +231,8 @@ export function EventForm({
                 disabled={logoBusy}
               />
               <p className="text-xs text-muted-foreground">
-                Upload a PNG, JPG or other image. It will be resized so it does not slow down exports.
+                Upload a PNG, JPG or other image. It will be resized so it does not slow down
+                exports.
               </p>
             </div>
           )}
@@ -233,7 +257,6 @@ export function EventForm({
           {busy ? "Saving…" : submitLabel}
         </Button>
       </div>
-
     </form>
   );
 }

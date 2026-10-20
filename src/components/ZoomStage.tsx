@@ -44,8 +44,7 @@ export function ZoomStage({
   useEffect(() => {
     const el = outerRef.current;
     if (!el) return;
-    const measure = () =>
-      setContainer({ width: el.clientWidth, height: el.clientHeight });
+    const measure = () => setContainer({ width: el.clientWidth, height: el.clientHeight });
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -55,25 +54,21 @@ export function ZoomStage({
   useEffect(() => {
     const el = contentRef.current?.firstElementChild as HTMLElement | null;
     if (!el) return;
-    const measure = () =>
-      setSize({ width: el.offsetWidth, height: el.offsetHeight });
+    const measure = () => setSize({ width: el.offsetWidth, height: el.offsetHeight });
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
   }, [measureKey]);
 
-  const fitWidth =
-    size.width > 0 && container.width > 0 ? container.width / size.width : 1;
-  const fitHeight =
-    size.height > 0 && container.height > 0 ? container.height / size.height : 1;
+  const fitWidth = size.width > 0 && container.width > 0 ? container.width / size.width : 1;
+  const fitHeight = size.height > 0 && container.height > 0 ? container.height / size.height : 1;
 
   // Always fit the whole poster inside the available area so nothing is
   // cut off at the bottom. Users zoom in to read details.
   const fit = Math.min(fitWidth, fitHeight);
 
   const stageHeight = container.height > 0 ? container.height : 360;
-
 
   // Dragging is only allowed when the user has zoomed in beyond the
   // default fit scale.

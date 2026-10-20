@@ -85,10 +85,14 @@ export const PdfProgram = forwardRef<HTMLDivElement, Props>(function PdfProgram(
             {event.name}
           </div>
           {options.includeSubtitle && event.subtitle ? (
-            <div style={{ fontSize: 22 * f, color: theme.muted, marginTop: 8 }}>{event.subtitle}</div>
+            <div style={{ fontSize: 22 * f, color: theme.muted, marginTop: 8 }}>
+              {event.subtitle}
+            </div>
           ) : null}
           {options.includeLocation && event.location ? (
-            <div style={{ fontSize: 20 * f, color: theme.muted, marginTop: 4 }}>{event.location}</div>
+            <div style={{ fontSize: 20 * f, color: theme.muted, marginTop: 4 }}>
+              {event.location}
+            </div>
           ) : null}
         </div>
         {options.includeLogo && event.logo_url ? (
@@ -169,10 +173,14 @@ export const PdfProgram = forwardRef<HTMLDivElement, Props>(function PdfProgram(
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 24 * f, lineHeight: 1.25 }}>{el.title}</div>
                           {options.includeSubtitle && el.subtitle ? (
-                            <div style={{ fontSize: 19 * f, color: theme.muted, marginTop: 3 }}>{el.subtitle}</div>
+                            <div style={{ fontSize: 19 * f, color: theme.muted, marginTop: 3 }}>
+                              {el.subtitle}
+                            </div>
                           ) : null}
                           {options.includeLocation && el.location ? (
-                            <div style={{ fontSize: 18 * f, color: theme.muted, marginTop: 3 }}>◦ {el.location}</div>
+                            <div style={{ fontSize: 18 * f, color: theme.muted, marginTop: 3 }}>
+                              ◦ {el.location}
+                            </div>
                           ) : null}
                         </div>
                         {cat ? (

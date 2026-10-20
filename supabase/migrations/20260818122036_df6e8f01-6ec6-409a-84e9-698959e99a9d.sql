@@ -1,1 +1,0 @@
-update public.events set logo_url = null where id = 'ed7f9d27-95dd-47a0-bc7d-49846037ea2f';

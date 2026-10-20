@@ -9,7 +9,15 @@ import {
   type ElementRow,
   type EventRow,
 } from "@/lib/programio";
-import { accentColorFor, cardVisual, paletteColorFor, posterTheme, spacedTicks, type CardStyle, type PaletteKey } from "@/lib/poster-style";
+import {
+  accentColorFor,
+  cardVisual,
+  paletteColorFor,
+  posterTheme,
+  spacedTicks,
+  type CardStyle,
+  type PaletteKey,
+} from "@/lib/poster-style";
 
 export type ExportOptions = {
   includeSubtitle: boolean;
@@ -183,7 +191,9 @@ export const DayPoster = forwardRef<HTMLDivElement, Props>(function DayPoster(
           background: `radial-gradient(1200px 600px at 80% -10%, ${accent}22, transparent 70%)`,
         }}
       />
-      <header style={{ position: "relative", borderBottom: `1px solid ${theme.line}`, paddingBottom: 18 }}>
+      <header
+        style={{ position: "relative", borderBottom: `1px solid ${theme.line}`, paddingBottom: 18 }}
+      >
         <div
           style={{
             display: "flex",
@@ -214,7 +224,9 @@ export const DayPoster = forwardRef<HTMLDivElement, Props>(function DayPoster(
             >
               {weekdayName(dayKey, options.locale)}
             </div>
-            <div style={{ fontSize: 30 * f, color: MUTED, marginTop: 4 }}>{dateLabel(dayKey, options.locale)}</div>
+            <div style={{ fontSize: 30 * f, color: MUTED, marginTop: 4 }}>
+              {dateLabel(dayKey, options.locale)}
+            </div>
           </div>
           {options.includeLogo && event.logo_url ? (
             <img
@@ -360,10 +372,14 @@ export const DayPoster = forwardRef<HTMLDivElement, Props>(function DayPoster(
                     {el.title}
                   </div>
                   {options.includeSubtitle && el.subtitle ? (
-                    <div style={{ fontSize: (tight ? 28 : 32) * ts(scale, f), opacity: 0.78 }}>{el.subtitle}</div>
+                    <div style={{ fontSize: (tight ? 28 : 32) * ts(scale, f), opacity: 0.78 }}>
+                      {el.subtitle}
+                    </div>
                   ) : null}
                   {options.includeLocation && el.location ? (
-                    <div style={{ fontSize: (tight ? 26 : 30) * ts(scale, f), opacity: 0.72 }}>◦ {el.location}</div>
+                    <div style={{ fontSize: (tight ? 26 : 30) * ts(scale, f), opacity: 0.72 }}>
+                      ◦ {el.location}
+                    </div>
                   ) : null}
                 </div>
               );
@@ -373,20 +389,20 @@ export const DayPoster = forwardRef<HTMLDivElement, Props>(function DayPoster(
       </main>
 
       {showFooter ? (
-      <footer
-        style={{
-          position: "relative",
-          paddingTop: 14,
-          borderTop: `1px solid ${theme.line}`,
-          display: "flex",
-          justifyContent: "space-between",
-          color: MUTED,
-          fontSize: 22 * f,
-        }}
-      >
-        <span>{options.includeLocation && event.location ? event.location : ""}</span>
-        <span style={{ letterSpacing: "0.24em", textTransform: "uppercase" }}>Programio</span>
-      </footer>
+        <footer
+          style={{
+            position: "relative",
+            paddingTop: 14,
+            borderTop: `1px solid ${theme.line}`,
+            display: "flex",
+            justifyContent: "space-between",
+            color: MUTED,
+            fontSize: 22 * f,
+          }}
+        >
+          <span>{options.includeLocation && event.location ? event.location : ""}</span>
+          <span style={{ letterSpacing: "0.24em", textTransform: "uppercase" }}>Programio</span>
+        </footer>
       ) : null}
     </div>
   );

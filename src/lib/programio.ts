@@ -1,5 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
-
 export type EventRow = {
   id: string;
   user_id: string;
@@ -133,50 +131,6 @@ export function readableOn(hex: string, override?: string | null) {
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   return luminance > 0.6 ? "#1a1712" : "#ffffff";
 }
-
-/* ---------- data access ---------- */
-
-export async function fetchEvents() {
-  const { data, error } = await supabase
-    .from("events")
-    .select("*")
-    .order("start_date", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as EventRow[];
-}
-
-export async function fetchEvent(id: string) {
-  const { data, error } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
-  if (error) throw error;
-  return data as EventRow | null;
-}
-
-export async function fetchCategories(eventId: string) {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("event_id", eventId)
-    .order("created_at");
-  if (error) throw error;
-  return (data ?? []) as CategoryRow[];
-}
-
-export async function fetchElements(eventId: string) {
-  const { data, error } = await supabase
-    .from("program_elements")
-    .select("*")
-    .eq("event_id", eventId)
-    .order("start_datetime");
-  if (error) throw error;
-  return (data ?? []) as ElementRow[];
-}
-
-export const DEFAULT_CATEGORIES = [
-  { name: "Meal", color: "#C9A227", icon: "🍽️" },
-  { name: "Activity", color: "#3E7CB1", icon: "⚡" },
-  { name: "Meeting", color: "#6B6F76", icon: "💬" },
-  { name: "Celebration", color: "#7B5EA7", icon: "✨" },
-];
 
 /* ---------- proportional timeline layout (overlap aware) ---------- */
 
@@ -339,8 +293,7 @@ export function placeBlocks(
 export type CollaboratorRow = {
   id: string;
   event_id: string;
-  owner_id: string;
-  email: string;
+  identifier: string;
   role: "viewer" | "editor";
   created_at: string;
 };
@@ -348,53 +301,6 @@ export type CollaboratorRow = {
 export function shareUrl(slug: string) {
   const origin = typeof window === "undefined" ? "" : window.location.origin;
   return `${origin}/p/${slug}`;
-}
-
-export async function fetchCollaborators(eventId: string) {
-  const { data, error } = await supabase
-    .from("event_collaborators")
-    .select("*")
-    .eq("event_id", eventId)
-    .order("created_at");
-  if (error) throw error;
-  return (data ?? []) as CollaboratorRow[];
-}
-
-export async function addCollaborator(
-  eventId: string,
-  ownerId: string,
-  email: string,
-  role: "viewer" | "editor",
-) {
-  const { error } = await supabase
-    .from("event_collaborators")
-    .insert({ event_id: eventId, owner_id: ownerId, email: email.trim().toLowerCase(), role });
-  if (error) throw error;
-}
-
-export async function updateCollaboratorRole(id: string, role: "viewer" | "editor") {
-  const { error } = await supabase.from("event_collaborators").update({ role }).eq("id", id);
-  if (error) throw error;
-}
-
-export async function removeCollaborator(id: string) {
-  const { error } = await supabase.from("event_collaborators").delete().eq("id", id);
-  if (error) throw error;
-}
-
-export async function setEventPublic(eventId: string, isPublic: boolean) {
-  const { error } = await supabase.from("events").update({ is_public: isPublic }).eq("id", eventId);
-  if (error) throw error;
-}
-
-export async function fetchEventBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from("events")
-    .select("*")
-    .eq("public_slug", slug)
-    .maybeSingle();
-  if (error) throw error;
-  return data as EventRow | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -465,7 +371,6 @@ export type AlignedBlock = {
   timeBottom: number;
 };
 
-
 export type AlignedTimelines = {
   ticks: { label: string; pos: number }[];
   totalPx: number;
@@ -491,7 +396,11 @@ export function buildAlignedTimelines(
 ): AlignedTimelines {
   const perDayRaw = new Map(days.map((d) => [d, rawDayItems(byDay.get(d) ?? [], d)]));
   const all = [...perDayRaw.values()].flat();
-  const empty: AlignedTimelines = { ticks: [], totalPx: 0, perDay: new Map(days.map((d) => [d, []])) };
+  const empty: AlignedTimelines = {
+    ticks: [],
+    totalPx: 0,
+    perDay: new Map(days.map((d) => [d, []])),
+  };
   if (all.length === 0) return empty;
 
   const start = Math.min(...all.map((r) => r.s));
@@ -645,8 +554,6 @@ export function buildAlignedTimelines(
     perDay.get(c.day)!.push(...placed);
   });
 
-
-
   // Safety net: nothing may visually overlap within a lane, even if the axis
   // could not grow enough (e.g. zero-length items at the very end of a day).
   for (const d of days) {
@@ -658,19 +565,17 @@ export function buildAlignedTimelines(
       const prev = Math.max(...keys.map((k) => laneBottom.get(k) ?? -Infinity), -Infinity);
       if (prev > b.top) b.top = prev;
       const bottom = b.top + b.height + opts.gap;
-      if (b.lanes === 1) for (const k of new Set([...laneBottom.keys(), 0, 1])) laneBottom.set(k, bottom);
+      if (b.lanes === 1)
+        for (const k of new Set([...laneBottom.keys(), 0, 1])) laneBottom.set(k, bottom);
       else laneBottom.set(b.lane, bottom);
     }
   }
-
 
   let maxBottom = at(end);
   for (const d of days) {
     const list = perDay.get(d)!.sort((a, b) => a.top - b.top);
     for (const b of list) maxBottom = Math.max(maxBottom, b.top + b.height);
   }
-
-
 
   const ticks: { label: string; pos: number }[] = [];
   for (let h = Math.ceil(start / 60) * 60; h <= end; h += 60) {
@@ -679,4 +584,3 @@ export function buildAlignedTimelines(
 
   return { ticks, totalPx: maxBottom, perDay };
 }
-

@@ -26,7 +26,12 @@ export function CategoryDialog({
         <DialogHeader>
           <DialogTitle>{initial ? "Edit category" : "New category"}</DialogTitle>
         </DialogHeader>
-        <CategoryFields key={initial?.id ?? "new"} initial={initial} onSubmit={onSubmit} busy={busy} />
+        <CategoryFields
+          key={initial?.id ?? "new"}
+          initial={initial}
+          onSubmit={onSubmit}
+          busy={busy}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -101,7 +106,6 @@ function CategoryFields({
           {busy ? "Saving…" : "Save category"}
         </Button>
       </div>
-
     </form>
   );
 }

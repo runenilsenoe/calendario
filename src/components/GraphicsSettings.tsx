@@ -46,7 +46,12 @@ export function GraphicsSettings({ options, onChange }: Props) {
           checked={options.includeLocation}
           onChange={(v) => set({ includeLocation: v })}
         />
-        <Toggle id="opt-logo" label="Logo" checked={options.includeLogo} onChange={(v) => set({ includeLogo: v })} />
+        <Toggle
+          id="opt-logo"
+          label="Logo"
+          checked={options.includeLogo}
+          onChange={(v) => set({ includeLogo: v })}
+        />
         <Toggle
           id="opt-grid"
           label="Tidslinjer"
@@ -166,7 +171,9 @@ export function GraphicsSettings({ options, onChange }: Props) {
                 title={b.label}
                 onClick={() => set({ backgroundColor: b.hex })}
                 className={`h-8 w-8 rounded-full border-2 transition-colors ${
-                  background.toLowerCase() === b.hex.toLowerCase() ? "border-primary" : "border-border"
+                  background.toLowerCase() === b.hex.toLowerCase()
+                    ? "border-primary"
+                    : "border-border"
                 }`}
                 style={{ background: b.hex }}
               >
@@ -182,7 +189,6 @@ export function GraphicsSettings({ options, onChange }: Props) {
             />
           </div>
         </div>
-
       </div>
     </div>
   );

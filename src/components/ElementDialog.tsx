@@ -180,7 +180,6 @@ function Fields({
           {busy ? "Saving…" : "Save element"}
         </Button>
       </div>
-
     </form>
   );
 }

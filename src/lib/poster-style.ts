@@ -1,28 +1,42 @@
 import { readableOn } from "@/lib/programio";
 
 export type CardStyle = "filled" | "outline" | "paper" | "glass";
-export type PaletteKey =
-  | "category"
-  | "sand"
-  | "ocean"
-  | "forest"
-  | "sunset"
-  | "mono";
+export type PaletteKey = "category" | "sand" | "ocean" | "forest" | "sunset" | "mono";
 
 export const PALETTES: { key: PaletteKey; label: string; colors: string[] }[] = [
-  { key: "category", label: "Kategorifarger", colors: ["#C9A227", "#7BA05B", "#4F8FBF", "#C4654A"] },
-  { key: "sand", label: "Varm sand", colors: ["#C9A227", "#D9A566", "#B4795A", "#8B6F5E", "#E0C79A", "#A0522D"] },
-  { key: "ocean", label: "Hav", colors: ["#5CBDB9", "#2D8A9E", "#4F8FBF", "#1A4A6E", "#8FD3E8", "#3B6FA0"] },
-  { key: "forest", label: "Skog", colors: ["#7BA05B", "#4A6741", "#A0C49D", "#2D5A3D", "#C6D8A8", "#5A8A5C"] },
-  { key: "sunset", label: "Solnedgang", colors: ["#E8843A", "#E05C61", "#C44569", "#F2B84B", "#B4508A", "#F27E63"] },
-  { key: "mono", label: "Monokrom", colors: ["#E7E3DA", "#B9B3A7", "#8F887B", "#6A6459", "#D2CCC0", "#4E4940"] },
+  {
+    key: "category",
+    label: "Kategorifarger",
+    colors: ["#C9A227", "#7BA05B", "#4F8FBF", "#C4654A"],
+  },
+  {
+    key: "sand",
+    label: "Varm sand",
+    colors: ["#C9A227", "#D9A566", "#B4795A", "#8B6F5E", "#E0C79A", "#A0522D"],
+  },
+  {
+    key: "ocean",
+    label: "Hav",
+    colors: ["#5CBDB9", "#2D8A9E", "#4F8FBF", "#1A4A6E", "#8FD3E8", "#3B6FA0"],
+  },
+  {
+    key: "forest",
+    label: "Skog",
+    colors: ["#7BA05B", "#4A6741", "#A0C49D", "#2D5A3D", "#C6D8A8", "#5A8A5C"],
+  },
+  {
+    key: "sunset",
+    label: "Solnedgang",
+    colors: ["#E8843A", "#E05C61", "#C44569", "#F2B84B", "#B4508A", "#F27E63"],
+  },
+  {
+    key: "mono",
+    label: "Monokrom",
+    colors: ["#E7E3DA", "#B9B3A7", "#8F887B", "#6A6459", "#D2CCC0", "#4E4940"],
+  },
 ];
 
-export function paletteColorFor(
-  palette: PaletteKey | undefined,
-  index: number,
-  fallback: string,
-) {
+export function paletteColorFor(palette: PaletteKey | undefined, index: number, fallback: string) {
   if (!palette || palette === "category") return fallback;
   const p = PALETTES.find((x) => x.key === palette);
   if (!p) return fallback;
@@ -35,10 +49,7 @@ export function paletteColorFor(
  * With the "category" palette we follow the first category colour instead of
  * the legacy event accent field.
  */
-export function accentColorFor(
-  palette: PaletteKey | undefined,
-  categories: { color: string }[],
-) {
+export function accentColorFor(palette: PaletteKey | undefined, categories: { color: string }[]) {
   const paletteDefault = PALETTES[0]!.colors[0]!;
   if (!palette || palette === "category") return categories[0]?.color || paletteDefault;
   return paletteColorFor(palette, 0, paletteDefault);
@@ -71,7 +82,6 @@ export function hexToRgba(hex: string, alpha: number) {
   const b = parseInt(h.slice(4, 6), 16) || 0;
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
-
 
 export const BACKGROUNDS: { key: string; label: string; hex: string }[] = [
   { key: "ink", label: "Mørk", hex: "#14120f" },

@@ -3,14 +3,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Pencil, Plus, Share2, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  dateLabel,
-  eventDayKeys,
+  deleteCategory as deleteCategoryFn,
+  deleteElement as deleteElementFn,
   fetchCategories,
   fetchElements,
   fetchEvent,
+  saveCategory as saveCategoryFn,
+  saveElement as saveElementFn,
+  updateEvent,
+} from "@/lib/api";
+import {
+  dateLabel,
+  eventDayKeys,
   fromInputValue,
   groupByDay,
   readableOn,
@@ -46,9 +52,21 @@ function EventDashboard() {
   const { user, loading } = useAuth();
   const qc = useQueryClient();
 
-  const eventQ = useQuery({ queryKey: ["event", id], queryFn: () => fetchEvent(id), enabled: !!user });
-  const catsQ = useQuery({ queryKey: ["categories", id], queryFn: () => fetchCategories(id), enabled: !!user });
-  const elsQ = useQuery({ queryKey: ["elements", id], queryFn: () => fetchElements(id), enabled: !!user });
+  const eventQ = useQuery({
+    queryKey: ["event", id],
+    queryFn: () => fetchEvent({ data: id }),
+    enabled: !!user,
+  });
+  const catsQ = useQuery({
+    queryKey: ["categories", id],
+    queryFn: () => fetchCategories({ data: id }),
+    enabled: !!user,
+  });
+  const elsQ = useQuery({
+    queryKey: ["elements", id],
+    queryFn: () => fetchElements({ data: id }),
+    enabled: !!user,
+  });
 
   const [editEvent, setEditEvent] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
@@ -72,21 +90,21 @@ function EventDashboard() {
   };
 
   const saveEvent = useMutation({
-    mutationFn: async (v: EventFormValues) => {
-      const { error } = await supabase
-        .from("events")
-        .update({
-          name: v.name,
-          subtitle: v.subtitle || null,
-          start_date: v.start_date,
-          end_date: v.end_date,
-          location: v.location || null,
-          logo_url: v.logo_url || null,
-          accent_color: v.accent_color,
-        })
-        .eq("id", id);
-      if (error) throw error;
-    },
+    mutationFn: (v: EventFormValues) =>
+      updateEvent({
+        data: {
+          id,
+          values: {
+            name: v.name,
+            subtitle: v.subtitle || null,
+            start_date: v.start_date,
+            end_date: v.end_date,
+            location: v.location || null,
+            logo_url: v.logo_url || null,
+            accent_color: v.accent_color,
+          },
+        },
+      }),
     onSuccess: () => {
       invalidate();
       setEditEvent(false);
@@ -96,18 +114,19 @@ function EventDashboard() {
   });
 
   const saveCategory = useMutation({
-    mutationFn: async (v: CategoryValues) => {
-      const payload = {
-        name: v.name,
-        color: v.color,
-        icon: v.icon || null,
-        text_color: v.text_color || null,
-      };
-      const { error } = catEditing
-        ? await supabase.from("categories").update(payload).eq("id", catEditing.id)
-        : await supabase.from("categories").insert({ ...payload, event_id: id, user_id: user!.id });
-      if (error) throw error;
-    },
+    mutationFn: (v: CategoryValues) =>
+      saveCategoryFn({
+        data: {
+          eventId: id,
+          id: catEditing?.id ?? null,
+          values: {
+            name: v.name,
+            color: v.color,
+            icon: v.icon || null,
+            text_color: v.text_color || null,
+          },
+        },
+      }),
     onSuccess: () => {
       invalidate();
       setCatOpen(false);
@@ -125,8 +144,7 @@ function EventDashboard() {
           `${inUse} program item${inUse === 1 ? "" : "s"} still use this category. Reassign them first.`,
         );
       }
-      const { error } = await supabase.from("categories").delete().eq("id", catId);
-      if (error) throw error;
+      await deleteCategoryFn({ data: { eventId: id, id: catId } });
     },
     onSuccess: () => {
       invalidate();
@@ -136,23 +154,22 @@ function EventDashboard() {
   });
 
   const saveElement = useMutation({
-    mutationFn: async (v: ElementValues) => {
-      const payload = {
-        title: v.title,
-        start_datetime: fromInputValue(v.start),
-        end_datetime: fromInputValue(v.end),
-        category_id: v.category_id || null,
-        location: v.location || null,
-        subtitle: v.subtitle || null,
-        notes: v.notes || null,
-      };
-      const { error } = elEditing
-        ? await supabase.from("program_elements").update(payload).eq("id", elEditing.id)
-        : await supabase
-            .from("program_elements")
-            .insert({ ...payload, event_id: id, user_id: user!.id });
-      if (error) throw error;
-    },
+    mutationFn: (v: ElementValues) =>
+      saveElementFn({
+        data: {
+          eventId: id,
+          id: elEditing?.id ?? null,
+          values: {
+            title: v.title,
+            start_datetime: fromInputValue(v.start),
+            end_datetime: fromInputValue(v.end),
+            category_id: v.category_id || null,
+            location: v.location || null,
+            subtitle: v.subtitle || null,
+            notes: v.notes || null,
+          },
+        },
+      }),
     onSuccess: () => {
       invalidate();
       setElOpen(false);
@@ -163,10 +180,7 @@ function EventDashboard() {
   });
 
   const deleteElement = useMutation({
-    mutationFn: async (elId: string) => {
-      const { error } = await supabase.from("program_elements").delete().eq("id", elId);
-      if (error) throw error;
-    },
+    mutationFn: (elId: string) => deleteElementFn({ data: { eventId: id, id: elId } }),
     onSuccess: () => {
       invalidate();
       toast.success("Program element deleted");
@@ -216,7 +230,10 @@ function EventDashboard() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto grid max-w-4xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:flex sm:justify-between sm:px-6 sm:py-4">
-          <Link to="/events" className="truncate text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/events"
+            className="truncate text-sm text-muted-foreground hover:text-foreground"
+          >
             ← Events
           </Link>
           <div className="flex shrink-0 items-center gap-2">
@@ -240,7 +257,6 @@ function EventDashboard() {
               </Link>
             </Button>
           </div>
-
         </div>
       </header>
 
@@ -257,14 +273,22 @@ function EventDashboard() {
             <div className="min-w-0">
               <h1 className="font-display text-3xl sm:text-5xl">
                 {event.name}{" "}
-                {event.subtitle ? <span className="text-muted-foreground">{event.subtitle}</span> : null}
+                {event.subtitle ? (
+                  <span className="text-muted-foreground">{event.subtitle}</span>
+                ) : null}
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 {dateLabel(event.start_date)} – {dateLabel(event.end_date)}
-                {event.location ? ` · ${event.location}` : ""} · {days.length} days · {elements.length} items
+                {event.location ? ` · ${event.location}` : ""} · {days.length} days ·{" "}
+                {elements.length} items
               </p>
             </div>
-            <Button variant="outline" size="sm" className="justify-self-start" onClick={() => setEditEvent(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="justify-self-start"
+              onClick={() => setEditEvent(true)}
+            >
               Edit event
             </Button>
           </div>
@@ -272,8 +296,8 @@ function EventDashboard() {
 
         {orphanDays.length > 0 ? (
           <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-            {orphanDays.length} day(s) of program items fall outside the event date range and will not
-            appear in exports. Adjust the dates or move those items.
+            {orphanDays.length} day(s) of program items fall outside the event date range and will
+            not appear in exports. Adjust the dates or move those items.
           </p>
         ) : null}
 
@@ -312,7 +336,6 @@ function EventDashboard() {
                           setElEditing(null);
                           setAddDay(dayKey);
                           setElOpen(true);
-
                         }}
                       >
                         <Plus className="mr-1 h-4 w-4" /> Add
@@ -345,7 +368,9 @@ function EventDashboard() {
                                   <div className="text-sm text-muted-foreground">{el.subtitle}</div>
                                 ) : null}
                                 {el.location ? (
-                                  <div className="text-sm text-muted-foreground">◦ {el.location}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    ◦ {el.location}
+                                  </div>
                                 ) : null}
                                 {cat ? (
                                   <span
@@ -517,8 +542,6 @@ function EventDashboard() {
     </div>
   );
 }
-
-
 
 function FilterChip({
   active,

@@ -3,7 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { dateLabel, eventDayKeys, fetchCategories, fetchElements, fetchEventBySlug } from "@/lib/programio";
+import { dateLabel, eventDayKeys } from "@/lib/programio";
+import { fetchCategories, fetchElements, fetchEventBySlug } from "@/lib/api";
 import { DayPoster } from "@/components/exports/DayPoster";
 import { FullPoster } from "@/components/exports/FullPoster";
 import { exportNodeToImage, slugify } from "@/lib/export-image";
@@ -31,7 +32,13 @@ export const Route = createFileRoute("/p/$slug")({
   component: PublicProgram,
 });
 
-const options = { includeSubtitle: true, includeLocation: true, includeLogo: true, locale: "nb-NO", fontScale: 1.15 };
+const options = {
+  includeSubtitle: true,
+  includeLocation: true,
+  includeLogo: true,
+  locale: "nb-NO",
+  fontScale: 1.15,
+};
 
 function PublicProgram() {
   const { slug } = Route.useParams();
@@ -41,16 +48,19 @@ function PublicProgram() {
   const dayRef = useRef<HTMLDivElement>(null);
   const fullRef = useRef<HTMLDivElement>(null);
 
-  const eventQ = useQuery({ queryKey: ["public-event", slug], queryFn: () => fetchEventBySlug(slug) });
+  const eventQ = useQuery({
+    queryKey: ["public-event", slug],
+    queryFn: () => fetchEventBySlug({ data: slug }),
+  });
   const eventId = eventQ.data?.id;
   const catsQ = useQuery({
     queryKey: ["public-categories", eventId],
-    queryFn: () => fetchCategories(eventId!),
+    queryFn: () => fetchCategories({ data: eventId! }),
     enabled: !!eventId,
   });
   const elsQ = useQuery({
     queryKey: ["public-elements", eventId],
-    queryFn: () => fetchElements(eventId!),
+    queryFn: () => fetchElements({ data: eventId! }),
     enabled: !!eventId,
   });
 
@@ -92,9 +102,7 @@ function PublicProgram() {
       );
       if (result === "shared") toast.success("Bildet er delt/lagret");
       else if (result === "downloaded") toast.success("JPG lastet ned");
-      else if (result === "manual")
-        toast.info("Hold inne bildet og velg «Lagre bilde»");
-
+      else if (result === "manual") toast.info("Hold inne bildet og velg «Lagre bilde»");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Export failed");
     } finally {
@@ -133,7 +141,11 @@ function PublicProgram() {
               onSelect={setDayKey}
               locale={options.locale}
             />
-            <Button className="mt-3 w-full sm:w-auto" onClick={() => download("day")} disabled={busy}>
+            <Button
+              className="mt-3 w-full sm:w-auto"
+              onClick={() => download("day")}
+              disabled={busy}
+            >
               {busy ? "Rendering…" : "Download day JPG (1080×1920)"}
             </Button>
 

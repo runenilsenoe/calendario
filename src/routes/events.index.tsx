@@ -2,9 +2,9 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { DEFAULT_CATEGORIES, dateLabel, fetchEvents } from "@/lib/programio";
+import { ME_KEY, useAuth } from "@/hooks/useAuth";
+import { createEvent, fetchEvents, signOut } from "@/lib/api";
+import { dateLabel } from "@/lib/programio";
 import { EventForm, type EventFormValues } from "@/components/EventForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,16 +36,14 @@ function EventsPage() {
 
   const events = useQuery({
     queryKey: ["events"],
-    queryFn: fetchEvents,
+    queryFn: () => fetchEvents(),
     enabled: !!user,
   });
 
   const create = useMutation({
-    mutationFn: async (values: EventFormValues) => {
-      const { data, error } = await supabase
-        .from("events")
-        .insert({
-          user_id: user!.id,
+    mutationFn: (values: EventFormValues) =>
+      createEvent({
+        data: {
           name: values.name,
           subtitle: values.subtitle || null,
           start_date: values.start_date,
@@ -53,21 +51,8 @@ function EventsPage() {
           location: values.location || null,
           logo_url: values.logo_url || null,
           accent_color: values.accent_color,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      await supabase.from("categories").insert(
-        DEFAULT_CATEGORIES.map((c) => ({
-          user_id: user!.id,
-          event_id: data.id,
-          name: c.name,
-          color: c.color,
-          icon: c.icon,
-        })),
-      );
-      return data;
-    },
+        },
+      }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["events"] });
       setOpen(false);
@@ -100,7 +85,9 @@ function EventsPage() {
           variant="ghost"
           size="sm"
           onClick={async () => {
-            await supabase.auth.signOut();
+            await signOut();
+            qc.clear();
+            qc.setQueryData(ME_KEY, null);
             navigate({ to: "/" });
           }}
         >
@@ -155,7 +142,10 @@ function EventsPage() {
                   <span className="h-3 w-3 rounded-full bg-primary" aria-hidden />
 
                   <h2 className="text-2xl">
-                    {ev.name} {ev.subtitle ? <span className="text-muted-foreground">{ev.subtitle}</span> : null}
+                    {ev.name}{" "}
+                    {ev.subtitle ? (
+                      <span className="text-muted-foreground">{ev.subtitle}</span>
+                    ) : null}
                   </h2>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
