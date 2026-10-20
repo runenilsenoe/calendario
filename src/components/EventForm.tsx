@@ -152,7 +152,7 @@ export function EventForm({
           required
           value={values.name}
           onChange={set("name")}
-          placeholder="Nyttårscamp"
+          placeholder="En dag sammen"
         />
       </div>
       <div className="space-y-2">
@@ -161,7 +161,7 @@ export function EventForm({
           id="subtitle"
           value={values.subtitle}
           onChange={set("subtitle")}
-          placeholder="2025"
+          placeholder="Små øyeblikk, gode minner"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -192,7 +192,7 @@ export function EventForm({
           id="location"
           value={values.location}
           onChange={set("location")}
-          placeholder="Oslofjord"
+          placeholder="Samfunnshuset"
         />
       </div>
       <div className="space-y-2">

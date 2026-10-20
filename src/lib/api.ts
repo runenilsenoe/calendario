@@ -1,12 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/server/db.server";
 import {
+  claimGuestEvents,
   currentUser,
+  ensureEventOwner,
   endSession,
   hashPassword,
   normalizeIdentifier,
   requireEventAccess,
-  requireUser,
   startSession,
   verifyPassword,
 } from "@/server/auth.server";
@@ -47,8 +48,9 @@ export const signUp = createServerFn({ method: "POST" })
       ON CONFLICT (identifier) DO NOTHING
       RETURNING id`;
     if (!user) throw new Error("An account with that email or phone number already exists");
+    await claimGuestEvents(user.id);
     await startSession(user.id);
-    return { id: user.id, identifier };
+    return { id: user.id, identifier, is_guest: false };
   });
 
 export const signIn = createServerFn({ method: "POST" })
@@ -61,8 +63,9 @@ export const signIn = createServerFn({ method: "POST" })
     if (!user || !(await verifyPassword(data.password, user.password_hash))) {
       throw new Error("Wrong email/phone or password");
     }
+    await claimGuestEvents(user.id);
     await startSession(user.id);
-    return { id: user.id, identifier };
+    return { id: user.id, identifier, is_guest: false };
   });
 
 export const signOut = createServerFn({ method: "POST" }).handler(() => endSession());
@@ -70,7 +73,8 @@ export const signOut = createServerFn({ method: "POST" }).handler(() => endSessi
 /* ---------- events ---------- */
 
 export const fetchEvents = createServerFn().handler(async () => {
-  const user = await requireUser();
+  const user = await currentUser();
+  if (!user) return [];
   const sql = await db();
   return sql<EventRow[]>`
     SELECT * FROM events e
@@ -101,7 +105,7 @@ export const fetchEventBySlug = createServerFn()
 export const createEvent = createServerFn({ method: "POST" })
   .validator(pass<EventInput>)
   .handler(async ({ data: v }) => {
-    const user = await requireUser();
+    const user = await ensureEventOwner();
     const sql = await db();
     return sql.begin(async (tx) => {
       const [event] = await tx<EventRow[]>`

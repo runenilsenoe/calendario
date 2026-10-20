@@ -12,6 +12,10 @@ Tailwind CSS and Postgres.
 - `db/migrations/` – SQL migrations, applied automatically on first request after startup
 - `src/lib/programio.ts` – date helpers and timeline layout used by the posters
 
+Visitors can create, edit, share and export events without registering. A private guest
+session keeps their events accessible in the same browser for 30 days; clearing cookies
+removes that access. Signing in or signing up transfers guest events to the account.
+
 Users sign in with an email address **or** a phone number plus a password. Sessions are
 httpOnly cookies backed by the `sessions` table. Events can be shared with collaborators
 (viewer/editor) by their email or phone number, or published at a public `/p/<slug>` link.
@@ -93,3 +97,15 @@ Restore into a fresh stack with:
 ```bash
 docker compose exec -T db psql -U programio programio < backup.sql
 ```
+
+## Guest access regression test
+
+Build and start the app against a disposable Postgres database, then run:
+
+```bash
+TEST_BASE_URL=http://localhost:3000 node tests/guest-events.mjs
+```
+
+The test creates events and a test account. It checks guest creation and editing,
+private access between browser sessions, public sharing, and transfer to an account
+on signup and sign-in. Use the same build for the running server and the test.

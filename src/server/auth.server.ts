@@ -13,7 +13,7 @@ const scryptAsync = promisify(scrypt) as (pw: string, salt: Buffer, len: number)
 const COOKIE = "programio_session";
 const SESSION_DAYS = 30;
 
-export type SessionUser = { id: string; identifier: string };
+export type SessionUser = { id: string; identifier: string; is_guest: boolean };
 
 /**
  * Normalizes a sign-in identifier: emails are lowercased, phone numbers are
@@ -79,15 +79,34 @@ export async function currentUser(): Promise<SessionUser | null> {
   if (!token) return null;
   const sql = await db();
   const [user] = await sql<SessionUser[]>`
-    SELECT u.id, u.identifier FROM sessions s JOIN users u ON u.id = s.user_id
+    SELECT u.id, u.identifier, u.is_guest FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.token_hash = ${sha256(token)} AND s.expires_at > now()`;
   return user ?? null;
 }
 
-export async function requireUser() {
+/** Creates a private browser identity only when a visitor creates an event. */
+export async function ensureEventOwner(): Promise<SessionUser> {
   const user = await currentUser();
-  if (!user) throw new Error("You need to sign in");
-  return user;
+  if (user) return user;
+  const sql = await db();
+  const [guest] = await sql<SessionUser[]>`
+    INSERT INTO users (identifier, password_hash, is_guest)
+    VALUES (${`guest:${randomBytes(32).toString("hex")}`}, ${randomBytes(32).toString("hex")}, true)
+    RETURNING id, identifier, is_guest`;
+  await startSession(guest!.id);
+  return guest!;
+}
+
+/** Keep this browser's calendars when its visitor signs in or registers. */
+export async function claimGuestEvents(userId: string) {
+  const guest = await currentUser();
+  if (!guest?.is_guest) return;
+  const sql = await db();
+  await sql.begin(async (tx) => {
+    await tx`UPDATE events SET user_id = ${userId}, updated_at = now()
+             WHERE user_id = ${guest.id}`;
+    await tx`DELETE FROM users WHERE id = ${guest.id} AND is_guest`;
+  });
 }
 
 type Access = "owner" | "editor" | "viewer" | "public" | null;
@@ -110,7 +129,7 @@ const RANK: Record<Exclude<Access, null>, number> = { public: 0, viewer: 1, edit
 
 /** Throws unless the current user has at least `level` access to the event. */
 export async function requireEventAccess(eventId: string, level: "view" | "edit" | "owner") {
-  const user = level === "view" ? await currentUser() : await requireUser();
+  const user = await currentUser();
   const access = await eventAccess(eventId, user);
   const needed = level === "view" ? 0 : level === "edit" ? 2 : 3;
   if (!access || RANK[access] < needed) throw new Error("You don't have access to this event");

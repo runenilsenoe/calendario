@@ -33,7 +33,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/events" });
+    if (!loading && user && !user.is_guest) navigate({ to: "/events" });
   }, [user, loading, navigate]);
 
   async function submit(e: React.FormEvent) {
@@ -43,6 +43,7 @@ function AuthPage() {
       const data = { identifier, password };
       const me = mode === "signup" ? await signUp({ data }) : await signIn({ data });
       if (mode === "signup") toast.success("Account created. You're signed in.");
+      qc.clear();
       qc.setQueryData(ME_KEY, me);
       navigate({ to: "/events" });
     } catch (err) {
@@ -62,7 +63,9 @@ function AuthPage() {
           {mode === "signin" ? "Welcome back" : "Create your account"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Organizer access to your events and exports.
+          {user?.is_guest
+            ? "Your guest events will be saved to your account when you sign in or sign up."
+            : "Organizer access to your events and exports."}
         </p>
 
         <form onSubmit={submit} className="mt-8 space-y-4">
@@ -92,6 +95,10 @@ function AuthPage() {
             {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Sign up"}
           </Button>
         </form>
+
+        <Button asChild variant="outline" className="mt-4 w-full">
+          <Link to="/events">Continue without signing in</Link>
+        </Button>
 
         <button
           type="button"

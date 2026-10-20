@@ -37,7 +37,7 @@ function EventsPage() {
   const events = useQuery({
     queryKey: ["events"],
     queryFn: () => fetchEvents(),
-    enabled: !!user,
+    enabled: !loading,
   });
 
   const create = useMutation({
@@ -53,7 +53,8 @@ function EventsPage() {
           accent_color: values.accent_color,
         },
       }),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      await qc.invalidateQueries({ queryKey: ME_KEY });
       qc.invalidateQueries({ queryKey: ["events"] });
       setOpen(false);
       toast.success("Event created");
@@ -62,37 +63,30 @@ function EventsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (!loading && !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="text-center">
-          <p className="text-muted-foreground">Sign in to manage your events.</p>
-          <Button asChild className="mt-4">
-            <Link to="/auth">Sign in</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-3xl items-center justify-between px-6 py-6">
         <Link to="/" className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
           Programio
         </Link>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={async () => {
-            await signOut();
-            qc.clear();
-            qc.setQueryData(ME_KEY, null);
-            navigate({ to: "/" });
-          }}
-        >
-          Sign out
-        </Button>
+        {user && !user.is_guest ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await signOut();
+              qc.clear();
+              qc.setQueryData(ME_KEY, null);
+              navigate({ to: "/" });
+            }}
+          >
+            Sign out
+          </Button>
+        ) : (
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/auth">Sign in</Link>
+          </Button>
+        )}
       </header>
 
       <main className="mx-auto max-w-3xl px-6 pb-24">
@@ -114,6 +108,17 @@ function EventsPage() {
             </DialogContent>
           </Dialog>
         </div>
+
+        {!loading && (!user || user.is_guest) && (
+          <p className="mt-4 text-sm text-muted-foreground">
+            No account needed. Guest events stay accessible in this browser for 30 days. Keep your
+            browser cookies, or{" "}
+            <Link to="/auth" className="underline">
+              sign in
+            </Link>{" "}
+            to save them to your account and access them on other devices.
+          </p>
+        )}
 
         <div className="mt-8 space-y-3">
           {events.isLoading || loading ? (
