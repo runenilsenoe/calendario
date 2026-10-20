@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toInputValue, type CategoryRow, type ElementRow } from "@/lib/programio";
+import { toInputValue, type CategoryRow, type ElementRow } from "@/lib/calendarbetter";
 
 export type ElementValues = {
   title: string;

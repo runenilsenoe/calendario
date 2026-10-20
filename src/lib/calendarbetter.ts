@@ -10,6 +10,8 @@ export type EventRow = {
   accent_color: string;
   is_public: boolean;
   public_slug: string;
+  /** Saved export design (see ExportOptions), applied to previews and the public link. */
+  poster_options: Record<string, string | number | boolean>;
   created_at: string;
   updated_at: string;
 };

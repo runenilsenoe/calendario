@@ -11,13 +11,13 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Programio" },
+      { title: "Sign in — CalendarBetter" },
       {
         name: "description",
-        content: "Sign in to build and export your event program with Programio.",
+        content: "Sign in to build and export your event program with CalendarBetter.",
       },
-      { property: "og:title", content: "Sign in — Programio" },
-      { property: "og:description", content: "Access your Programio events." },
+      { property: "og:title", content: "Sign in — CalendarBetter" },
+      { property: "og:description", content: "Access your CalendarBetter events." },
     ],
   }),
   component: AuthPage,
@@ -57,7 +57,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
       <div className="w-full max-w-sm">
         <Link to="/" className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
-          Programio
+          CalendarBetter
         </Link>
         <h1 className="mt-8 font-display text-4xl">
           {mode === "signin" ? "Welcome back" : "Create your account"}

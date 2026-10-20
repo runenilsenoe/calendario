@@ -74,14 +74,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Programio — Beautiful event program graphics" },
+      { title: "CalendarBetter — Beautiful event program graphics" },
       {
         name: "description",
         content:
-          "Programio is a lightweight event program builder: plan your days, color-code categories and export polished schedule images.",
+          "CalendarBetter is a lightweight event program builder: plan your days, color-code categories and export polished schedule images.",
       },
-      { name: "author", content: "Programio" },
-      { property: "og:title", content: "Programio — Beautiful event program graphics" },
+      { name: "author", content: "CalendarBetter" },
+      { property: "og:title", content: "CalendarBetter — Beautiful event program graphics" },
       {
         property: "og:description",
         content: "Build multi-day event programs and export elegant schedule images.",

@@ -9,7 +9,7 @@ import {
   setEventPublic,
   updateCollaboratorRole,
 } from "@/lib/api";
-import { shareUrl, type EventRow } from "@/lib/programio";
+import { shareUrl, type EventRow } from "@/lib/calendarbetter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

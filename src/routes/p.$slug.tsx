@@ -3,10 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { dateLabel, eventDayKeys } from "@/lib/programio";
+import { dateLabel, eventDayKeys } from "@/lib/calendarbetter";
 import { fetchCategories, fetchElements, fetchEventBySlug } from "@/lib/api";
-import { DayPoster } from "@/components/exports/DayPoster";
-import { FullPoster } from "@/components/exports/FullPoster";
+import { DayExport, FullExport, savedExportOptions } from "@/components/exports/ProgramPoster";
 import { exportNodeToImage, slugify } from "@/lib/export-image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -18,27 +17,19 @@ export const Route = createFileRoute("/p/$slug")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Event program — Programio" },
+      { title: "Event program — CalendarBetter" },
       {
         name: "description",
         content: "A shared event program: every day, hour by hour, in one view.",
       },
-      { property: "og:title", content: "Event program — Programio" },
-      { property: "og:description", content: "A shared event program built with Programio." },
+      { property: "og:title", content: "Event program — CalendarBetter" },
+      { property: "og:description", content: "A shared event program built with CalendarBetter." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: PublicProgram,
 });
-
-const options = {
-  includeSubtitle: true,
-  includeLocation: true,
-  includeLogo: true,
-  locale: "nb-NO",
-  fontScale: 1.15,
-};
 
 function PublicProgram() {
   const { slug } = Route.useParams();
@@ -84,6 +75,7 @@ function PublicProgram() {
     );
   }
 
+  const options = savedExportOptions(event);
   const days = eventDayKeys(event);
   const activeDay = dayKey && days.includes(dayKey) ? dayKey : days[0]!;
   const categories = catsQ.data ?? [];
@@ -139,7 +131,7 @@ function PublicProgram() {
               days={days}
               activeDay={activeDay}
               onSelect={setDayKey}
-              locale={options.locale}
+              locale={options.locale ?? "nb-NO"}
             />
             <Button
               className="mt-3 w-full sm:w-auto"
@@ -150,8 +142,8 @@ function PublicProgram() {
             </Button>
 
             <div className="mt-4 min-w-0">
-              <ZoomStage measureKey={`day-${activeDay}`}>
-                <DayPoster
+              <ZoomStage measureKey={`day-${activeDay}-${options.layout}`}>
+                <DayExport
                   ref={dayRef}
                   event={event}
                   categories={categories}
@@ -169,8 +161,8 @@ function PublicProgram() {
             </Button>
 
             <div className="mt-4 min-w-0">
-              <ZoomStage measureKey={`full-${elements.length}`}>
-                <FullPoster
+              <ZoomStage measureKey={`full-${elements.length}-${options.layout}`}>
+                <FullExport
                   ref={fullRef}
                   event={event}
                   categories={categories}
@@ -182,7 +174,7 @@ function PublicProgram() {
           </TabsContent>
         </Tabs>
 
-        <p className="mt-6 text-xs text-muted-foreground">Shared with Programio</p>
+        <p className="mt-6 text-xs text-muted-foreground">Shared with CalendarBetter</p>
       </main>
     </div>
   );

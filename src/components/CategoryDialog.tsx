@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { CategoryRow } from "@/lib/programio";
+import type { CategoryRow } from "@/lib/calendarbetter";
 
 export type CategoryValues = { name: string; color: string; icon: string; text_color: string };
 
