@@ -8,131 +8,150 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as AuthRouteImport } from "./routes/auth";
-import { Route as EventsIndexRouteImport } from "./routes/events.index";
-import { Route as PSlugRouteImport } from "./routes/p.$slug";
-import { Route as EventsIdIndexRouteImport } from "./routes/events.$id.index";
-import { Route as EventsIdPreviewRouteImport } from "./routes/events.$id.preview";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EventsIndexRouteImport } from './routes/events.index'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
+import { Route as EventsIdIndexRouteImport } from './routes/events.$id.index'
+import { Route as EventsIdPreviewRouteImport } from './routes/events.$id.preview'
 
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthRoute = AuthRouteImport.update({
-  id: "/auth",
-  path: "/auth",
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
-  id: "/events/",
-  path: "/events/",
+  id: '/events/',
+  path: '/events/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PSlugRoute = PSlugRouteImport.update({
-  id: "/p/$slug",
-  path: "/p/$slug",
+  id: '/p/$slug',
+  path: '/p/$slug',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EventsIdIndexRoute = EventsIdIndexRouteImport.update({
-  id: "/events/$id/",
-  path: "/events/$id/",
+  id: '/events/$id/',
+  path: '/events/$id/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EventsIdPreviewRoute = EventsIdPreviewRouteImport.update({
-  id: "/events/$id/preview",
-  path: "/events/$id/preview",
+  id: '/events/$id/preview',
+  path: '/events/$id/preview',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/auth": typeof AuthRoute;
-  "/p/$slug": typeof PSlugRoute;
-  "/events/": typeof EventsIndexRoute;
-  "/events/$id/preview": typeof EventsIdPreviewRoute;
-  "/events/$id/": typeof EventsIdIndexRoute;
+  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/p/$slug': typeof PSlugRoute
+  '/events/': typeof EventsIndexRoute
+  '/events/$id/preview': typeof EventsIdPreviewRoute
+  '/events/$id/': typeof EventsIdIndexRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/auth": typeof AuthRoute;
-  "/p/$slug": typeof PSlugRoute;
-  "/events": typeof EventsIndexRoute;
-  "/events/$id/preview": typeof EventsIdPreviewRoute;
-  "/events/$id": typeof EventsIdIndexRoute;
+  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/p/$slug': typeof PSlugRoute
+  '/events': typeof EventsIndexRoute
+  '/events/$id/preview': typeof EventsIdPreviewRoute
+  '/events/$id': typeof EventsIdIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/auth": typeof AuthRoute;
-  "/p/$slug": typeof PSlugRoute;
-  "/events/": typeof EventsIndexRoute;
-  "/events/$id/preview": typeof EventsIdPreviewRoute;
-  "/events/$id/": typeof EventsIdIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/p/$slug': typeof PSlugRoute
+  '/events/': typeof EventsIndexRoute
+  '/events/$id/preview': typeof EventsIdPreviewRoute
+  '/events/$id/': typeof EventsIdIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/auth" | "/p/$slug" | "/events/" | "/events/$id/preview" | "/events/$id/";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/auth" | "/p/$slug" | "/events" | "/events/$id/preview" | "/events/$id";
-  id: "__root__" | "/" | "/auth" | "/p/$slug" | "/events/" | "/events/$id/preview" | "/events/$id/";
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/p/$slug'
+    | '/events/'
+    | '/events/$id/preview'
+    | '/events/$id/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/auth'
+    | '/p/$slug'
+    | '/events'
+    | '/events/$id/preview'
+    | '/events/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/p/$slug'
+    | '/events/'
+    | '/events/$id/preview'
+    | '/events/$id/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AuthRoute: typeof AuthRoute;
-  PSlugRoute: typeof PSlugRoute;
-  EventsIndexRoute: typeof EventsIndexRoute;
-  EventsIdPreviewRoute: typeof EventsIdPreviewRoute;
-  EventsIdIndexRoute: typeof EventsIdIndexRoute;
+  IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  PSlugRoute: typeof PSlugRoute
+  EventsIndexRoute: typeof EventsIndexRoute
+  EventsIdPreviewRoute: typeof EventsIdPreviewRoute
+  EventsIdIndexRoute: typeof EventsIdIndexRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth": {
-      id: "/auth";
-      path: "/auth";
-      fullPath: "/auth";
-      preLoaderRoute: typeof AuthRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/events/": {
-      id: "/events/";
-      path: "/events";
-      fullPath: "/events/";
-      preLoaderRoute: typeof EventsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/p/$slug": {
-      id: "/p/$slug";
-      path: "/p/$slug";
-      fullPath: "/p/$slug";
-      preLoaderRoute: typeof PSlugRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/events/$id/": {
-      id: "/events/$id/";
-      path: "/events/$id";
-      fullPath: "/events/$id/";
-      preLoaderRoute: typeof EventsIdIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/events/$id/preview": {
-      id: "/events/$id/preview";
-      path: "/events/$id/preview";
-      fullPath: "/events/$id/preview";
-      preLoaderRoute: typeof EventsIdPreviewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/$id/': {
+      id: '/events/$id/'
+      path: '/events/$id'
+      fullPath: '/events/$id/'
+      preLoaderRoute: typeof EventsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/$id/preview': {
+      id: '/events/$id/preview'
+      path: '/events/$id/preview'
+      fullPath: '/events/$id/preview'
+      preLoaderRoute: typeof EventsIdPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -143,17 +162,17 @@ const rootRouteChildren: RootRouteChildren = {
   EventsIndexRoute: EventsIndexRoute,
   EventsIdPreviewRoute: EventsIdPreviewRoute,
   EventsIdIndexRoute: EventsIdIndexRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx";
-import type { startInstance } from "./start.ts";
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }
