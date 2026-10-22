@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ME_KEY, useAuth } from "@/hooks/useAuth";
 import { createEvent, fetchEvents, signOut } from "@/lib/api";
-import { dateLabel } from "@/lib/programio";
+import { dateLabel } from "@/lib/calendarbetter";
 import { EventForm, type EventFormValues } from "@/components/EventForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,10 +19,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/events/")({
   head: () => ({
     meta: [
-      { title: "Your events — Programio" },
-      { name: "description", content: "All the event programs you are building in Programio." },
-      { property: "og:title", content: "Your events — Programio" },
-      { property: "og:description", content: "Manage your Programio event programs." },
+      { title: "Your events — CalendarBetter" },
+      {
+        name: "description",
+        content: "All the event programs you are building in CalendarBetter.",
+      },
+      { property: "og:title", content: "Your events — CalendarBetter" },
+      { property: "og:description", content: "Manage your CalendarBetter event programs." },
     ],
   }),
   component: EventsPage,
@@ -67,7 +70,7 @@ function EventsPage() {
     <div className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-3xl items-center justify-between px-6 py-6">
         <Link to="/" className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
-          Programio
+          CalendarBetter
         </Link>
         {user && !user.is_guest ? (
           <Button

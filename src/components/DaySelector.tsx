@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { dateLabel, shortDateLabel, weekdayName, weekdayNameShort } from "@/lib/programio";
+import { dateLabel, shortDateLabel, weekdayName, weekdayNameShort } from "@/lib/calendarbetter";
 
 type Props = {
   days: string[];

@@ -25,7 +25,7 @@ import {
   weekdayName,
   type CategoryRow,
   type ElementRow,
-} from "@/lib/programio";
+} from "@/lib/calendarbetter";
 import { EventForm, type EventFormValues } from "@/components/EventForm";
 import { CategoryDialog, type CategoryValues } from "@/components/CategoryDialog";
 import { ElementDialog, type ElementValues } from "@/components/ElementDialog";
@@ -38,10 +38,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/events/$id/")({
   head: () => ({
     meta: [
-      { title: "Event dashboard — Programio" },
+      { title: "Event dashboard — CalendarBetter" },
       { name: "description", content: "Manage program elements, categories and event details." },
-      { property: "og:title", content: "Event dashboard — Programio" },
-      { property: "og:description", content: "Manage your event program in Programio." },
+      { property: "og:title", content: "Event dashboard — CalendarBetter" },
+      { property: "og:description", content: "Manage your event program in CalendarBetter." },
     ],
   }),
   component: EventDashboard,

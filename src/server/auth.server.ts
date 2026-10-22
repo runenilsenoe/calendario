@@ -10,7 +10,10 @@ import { db } from "./db.server";
 
 const scryptAsync = promisify(scrypt) as (pw: string, salt: Buffer, len: number) => Promise<Buffer>;
 
-const COOKIE = "programio_session";
+const COOKIE = "calendarbetter_session";
+// Sessions created before the rename still identify their user (and guest events).
+const LEGACY_COOKIE = "programio_session";
+const sessionToken = () => getCookie(COOKIE) ?? getCookie(LEGACY_COOKIE);
 const SESSION_DAYS = 30;
 
 export type SessionUser = { id: string; identifier: string; is_guest: boolean };
@@ -66,16 +69,17 @@ export async function startSession(userId: string) {
 }
 
 export async function endSession() {
-  const token = getCookie(COOKIE);
+  const token = sessionToken();
   if (token) {
     const sql = await db();
     await sql`DELETE FROM sessions WHERE token_hash = ${sha256(token)}`;
   }
   deleteCookie(COOKIE, { path: "/" });
+  deleteCookie(LEGACY_COOKIE, { path: "/" });
 }
 
 export async function currentUser(): Promise<SessionUser | null> {
-  const token = getCookie(COOKIE);
+  const token = sessionToken();
   if (!token) return null;
   const sql = await db();
   const [user] = await sql<SessionUser[]>`

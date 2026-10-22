@@ -24,7 +24,7 @@ const examples: Example[] = [
     label: "Firmatur",
     title: "Sammen om neste steg",
     subtitle: "Fem dager med nye ideer, felles opplevelser og tid til å bli bedre kjent.",
-    description: "Fem fulle dager med fag, utflukter og sosialt program.",
+    description: "Fem dager med fag, utflukter og god tid sammen.",
     location: "Fjellhotellet · Geilo",
     color: "#365f61",
     paper: "#e6efeb",
@@ -34,12 +34,6 @@ const examples: Example[] = [
         label: "Mandag",
         date: "7. september",
         items: [
-          {
-            time: "07:30–08:15",
-            title: "Frokost før avreise",
-            detail: "Hotellrestauranten · Møt reisefølget",
-            category: 2,
-          },
           {
             time: "08:30–10:00",
             title: "Felles buss til fjells",
@@ -51,12 +45,6 @@ const examples: Example[] = [
             title: "Velkommen & innsjekk",
             detail: "Resepsjonen · Bagasje og romfordeling",
             category: 0,
-          },
-          {
-            time: "10:30–11:00",
-            title: "Kaffe & bli kjent",
-            detail: "Peisestuen · Møt kolleger på tvers",
-            category: 2,
           },
           {
             time: "11:00–12:00",
@@ -77,22 +65,10 @@ const examples: Example[] = [
             category: 1,
           },
           {
-            time: "14:30–15:00",
-            title: "Kaffe & frisk luft",
-            detail: "Terrassen · En liten pustepause",
-            category: 2,
-          },
-          {
             time: "15:00–17:00",
             title: "Bli kjent med området",
             detail: "Tunet · Lagvis natursti og små utfordringer",
             category: 3,
-          },
-          {
-            time: "17:00–18:30",
-            title: "Rom, dusj & egentid",
-            detail: "Hotellet · Tid til å lande",
-            category: 2,
           },
           {
             time: "18:30–20:00",
@@ -113,34 +89,16 @@ const examples: Example[] = [
         date: "8. september",
         items: [
           {
-            time: "07:00–07:45",
-            title: "Rolig start ute",
-            detail: "Resepsjonen · Valgfri morgentur",
-            category: 3,
-          },
-          {
             time: "07:45–08:45",
             title: "Frokost",
             detail: "Restauranten · En god start på dagen",
             category: 2,
           },
           {
-            time: "09:00–09:20",
-            title: "Dagens retning",
-            detail: "Panoramasalen · Kort felles oppstart",
-            category: 0,
-          },
-          {
             time: "09:20–10:30",
             title: "Kunden i sentrum",
             detail: "Panoramasalen · Felles fagøkt",
             category: 1,
-          },
-          {
-            time: "10:30–10:50",
-            title: "Kaffepause",
-            detail: "Foajeen · Frukt og påfyll",
-            category: 2,
           },
           {
             time: "10:50–12:00",
@@ -161,18 +119,11 @@ const examples: Example[] = [
             detail: "Grupperommene · Tverrfaglig case",
             category: 1,
           },
-          { time: "14:30–15:00", title: "Kaffe & kake", detail: "Terrassen", category: 2 },
           {
             time: "15:00–17:00",
             title: "Lagkamp i det fri",
             detail: "Aktivitetsområdet · Samarbeid og mestring",
             category: 3,
-          },
-          {
-            time: "17:00–18:30",
-            title: "Egentid & badstue",
-            detail: "Hotellet · Valgfri avkobling",
-            category: 2,
           },
           {
             time: "18:30–20:00",
@@ -199,27 +150,9 @@ const examples: Example[] = [
             category: 2,
           },
           {
-            time: "08:30–09:00",
-            title: "Dagens rute",
-            detail: "Panoramasalen · Utstyr og gruppefordeling",
-            category: 0,
-          },
-          {
             time: "09:00–10:30",
             title: "På vei mot utsikten",
             detail: "Tunet · Guidet tur i rolig tempo",
-            category: 3,
-          },
-          {
-            time: "10:30–11:00",
-            title: "Kaffe på stien",
-            detail: "Utsiktspunktet · Varm drikke fra termos",
-            category: 2,
-          },
-          {
-            time: "11:00–12:00",
-            title: "Samarbeid uten møterom",
-            detail: "Skogsløypa · Oppgaver i små lag",
             category: 3,
           },
           {
@@ -241,23 +174,10 @@ const examples: Example[] = [
             category: 3,
           },
           {
-            time: "14:30–15:00",
-            title: "Pause ved vannet",
-            detail: "Brygga · Kaffe og noe søtt",
-            category: 2,
-          },
-          {
             time: "15:00–16:00",
             title: "Tilbake til hotellet",
             detail: "Felles retur · Kort oppsummering underveis",
             category: 0,
-          },
-          { time: "16:00–17:30", title: "Dusj & egentid", detail: "Hotellet", category: 2 },
-          {
-            time: "17:30–18:30",
-            title: "Hva lærte vi om hverandre?",
-            detail: "Peisestuen · Refleksjon i lagene",
-            category: 1,
           },
           {
             time: "18:30–20:00",
@@ -277,26 +197,13 @@ const examples: Example[] = [
         label: "Torsdag",
         date: "10. september",
         items: [
-          {
-            time: "07:00–07:45",
-            title: "Morgenstrekk",
-            detail: "Treningsrommet · Valgfri rolig økt",
-            category: 3,
-          },
           { time: "07:45–08:45", title: "Frokost", detail: "Restauranten", category: 2 },
-          {
-            time: "09:00–09:15",
-            title: "God morgen, laget",
-            detail: "Panoramasalen · Dagens mål",
-            category: 0,
-          },
           {
             time: "09:15–10:30",
             title: "Neste kapittel",
             detail: "Panoramasalen · Strategi og prioriteringer",
             category: 1,
           },
-          { time: "10:30–10:50", title: "Kaffepause", detail: "Foajeen", category: 2 },
           {
             time: "10:50–12:00",
             title: "Ideverksted",
@@ -310,18 +217,11 @@ const examples: Example[] = [
             detail: "Grupperommene · Lagene utvikler løsningene",
             category: 1,
           },
-          { time: "14:30–15:00", title: "Kaffe & siste finpuss", detail: "Foajeen", category: 2 },
           {
             time: "15:00–16:30",
             title: "Fem minutter på scenen",
             detail: "Panoramasalen · Lagpresentasjoner og tilbakemeldinger",
             category: 1,
-          },
-          {
-            time: "16:30–18:30",
-            title: "Egentid & klargjøring",
-            detail: "Hotellet · Gjør deg klar til festmiddag",
-            category: 2,
           },
           {
             time: "18:30–19:00",
@@ -360,22 +260,9 @@ const examples: Example[] = [
             category: 0,
           },
           {
-            time: "09:00–09:30",
-            title: "Uken i bilder",
-            detail: "Panoramasalen · Små og store høydepunkter",
-            category: 0,
-          },
-          {
             time: "09:30–10:30",
             title: "Hva tar vi med hjem?",
             detail: "Grupperommene · Konkret plan for hvert team",
-            category: 1,
-          },
-          { time: "10:30–10:50", title: "Kaffepause", detail: "Foajeen", category: 2 },
-          {
-            time: "10:50–11:45",
-            title: "Fra mandag gjør vi dette",
-            detail: "Panoramasalen · Del tiltak og avtal oppfølging",
             category: 1,
           },
           {
@@ -385,12 +272,6 @@ const examples: Example[] = [
             category: 0,
           },
           { time: "12:15–13:15", title: "Avskjedslunsj", detail: "Restauranten", category: 2 },
-          {
-            time: "13:15–13:30",
-            title: "Oppmøte til avreise",
-            detail: "Hovedinngangen · Sjekk bagasje og reisefølge",
-            category: 0,
-          },
           {
             time: "13:30–15:00",
             title: "Felles hjemreise",
@@ -759,13 +640,13 @@ function categoryColor(example: Example, index: number) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Programio — Gi gode opplevelser et godt program" },
+      { title: "CalendarBetter — Gi gode opplevelser et godt program" },
       {
         name: "description",
         content:
           "Lag programmer for firmaturer, bryllup, konferanser, leir og festivaler. Utforsk eksempler og lag ditt eget program uten innlogging.",
       },
-      { property: "og:title", content: "Programio — Gi gode opplevelser et godt program" },
+      { property: "og:title", content: "CalendarBetter — Gi gode opplevelser et godt program" },
       {
         property: "og:description",
         content:
@@ -787,9 +668,9 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background" lang="nb">
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-6 sm:px-10">
-        <Link to="/" aria-label="Programio – forsiden" className="flex items-center gap-2.5">
+        <Link to="/" aria-label="CalendarBetter – forsiden" className="flex items-center gap-2.5">
           <CalendarDays className="size-5" strokeWidth={1.5} />
-          <span className="text-sm font-medium tracking-[0.16em]">PROGRAMIO</span>
+          <span className="text-sm font-medium tracking-[0.16em]">CALENDARBETTER</span>
         </Link>
         <nav aria-label="Hovedmeny" className="flex items-center gap-3 sm:gap-6">
           <a
@@ -876,7 +757,9 @@ function Landing() {
                   <span className="mr-4 font-medium">21:30</span>Bare én dans til
                 </p>
               </div>
-              <p className="mt-6 text-[8px] uppercase tracking-[0.25em]">Laget med Programio</p>
+              <p className="mt-6 text-[8px] uppercase tracking-[0.25em]">
+                Laget med CalendarBetter
+              </p>
             </div>
           </div>
         </section>
@@ -1131,7 +1014,7 @@ function Landing() {
         </section>
       </main>
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 pb-8 pt-2 text-xs text-muted-foreground sm:px-10">
-        <span className="tracking-[0.15em]">PROGRAMIO</span>
+        <span className="tracking-[0.15em]">CALENDARBETTER</span>
         <span>Gode opplevelser begynner med en god plan.</span>
       </footer>
     </div>

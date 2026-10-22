@@ -8,7 +8,7 @@ import {
   type CategoryRow,
   type ElementRow,
   type EventRow,
-} from "@/lib/programio";
+} from "@/lib/calendarbetter";
 import { accentColorFor, paletteColorFor, posterTheme } from "@/lib/poster-style";
 import type { ExportOptions } from "@/components/exports/DayPoster";
 
@@ -220,7 +220,9 @@ export const PdfProgram = forwardRef<HTMLDivElement, Props>(function PdfProgram(
           }}
         >
           <span>{options.includeLocation && event.location ? event.location : ""}</span>
-          <span style={{ letterSpacing: "0.24em", textTransform: "uppercase" }}>Programio</span>
+          <span style={{ letterSpacing: "0.24em", textTransform: "uppercase" }}>
+            CalendarBetter
+          </span>
         </footer>
       ) : null}
     </div>

@@ -9,7 +9,7 @@ import {
   type CategoryRow,
   type ElementRow,
   type EventRow,
-} from "@/lib/programio";
+} from "@/lib/calendarbetter";
 import type { ExportOptions } from "./DayPoster";
 import {
   accentColorFor,
@@ -430,7 +430,9 @@ export const FullPoster = forwardRef<HTMLDivElement, Props>(function FullPoster(
           <span>
             {days.length} days · {elements.length} program items
           </span>
-          <span style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}>Programio</span>
+          <span style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}>
+            CalendarBetter
+          </span>
         </div>
       ) : null}
     </div>

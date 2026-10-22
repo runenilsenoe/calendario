@@ -1,6 +1,15 @@
-import { readableOn } from "@/lib/programio";
+import { readableOn } from "@/lib/calendarbetter";
 
 export type CardStyle = "filled" | "outline" | "paper" | "glass";
+export type PosterLayout = "timeline" | "list" | "bold" | "elegant";
+
+/** Export layouts; the non-timeline ones mirror the examples on the landing page. */
+export const LAYOUTS: { key: PosterLayout; label: string; description: string }[] = [
+  { key: "timeline", label: "Tidslinje", description: "Kort plassert etter klokkeslett" },
+  { key: "list", label: "Program", description: "Fargepanel og ryddig liste" },
+  { key: "bold", label: "Plakat", description: "Helfarget med store titler" },
+  { key: "elegant", label: "Elegant", description: "Lyst kort, som en invitasjon" },
+];
 export type PaletteKey = "category" | "sand" | "ocean" | "forest" | "sunset" | "mono";
 
 export const PALETTES: { key: PaletteKey; label: string; colors: string[] }[] = [
@@ -53,6 +62,19 @@ export function accentColorFor(palette: PaletteKey | undefined, categories: { co
   const paletteDefault = PALETTES[0]!.colors[0]!;
   if (!palette || palette === "category") return categories[0]?.color || paletteDefault;
   return paletteColorFor(palette, 0, paletteDefault);
+}
+
+/** Blends hex colour `a` towards `b`; t = 0 gives a, t = 1 gives b. */
+export function mixHex(a: string, b: string, t: number) {
+  const [x, y] = [clampHex(a), clampHex(b)];
+  const channel = (i: number) => {
+    const from = parseInt(x.slice(i, i + 2), 16) || 0;
+    const to = parseInt(y.slice(i, i + 2), 16) || 0;
+    return Math.round(from + (to - from) * t)
+      .toString(16)
+      .padStart(2, "0");
+  };
+  return `#${channel(0)}${channel(2)}${channel(4)}`;
 }
 
 function clampHex(hex: string) {

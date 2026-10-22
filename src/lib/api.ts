@@ -11,7 +11,7 @@ import {
   startSession,
   verifyPassword,
 } from "@/server/auth.server";
-import type { CategoryRow, CollaboratorRow, ElementRow, EventRow } from "@/lib/programio";
+import type { CategoryRow, CollaboratorRow, ElementRow, EventRow } from "@/lib/calendarbetter";
 
 type Role = "viewer" | "editor";
 
@@ -131,6 +131,15 @@ export const updateEvent = createServerFn({ method: "POST" })
         end_date = ${v.end_date}, location = ${v.location}, logo_url = ${v.logo_url},
         accent_color = ${v.accent_color}, updated_at = now()
       WHERE id = ${id}`;
+  });
+
+export const savePosterOptions = createServerFn({ method: "POST" })
+  .validator(pass<{ eventId: string; options: EventRow["poster_options"] }>)
+  .handler(async ({ data }) => {
+    await requireEventAccess(data.eventId, "edit");
+    const sql = await db();
+    await sql`UPDATE events SET poster_options = ${sql.json(data.options as never)}, updated_at = now()
+              WHERE id = ${data.eventId}`;
   });
 
 export const setEventPublic = createServerFn({ method: "POST" })

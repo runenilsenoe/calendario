@@ -1,12 +1,12 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { eventDayKeys } from "@/lib/programio";
-import { fetchCategories, fetchElements, fetchEvent } from "@/lib/api";
-import { DayPoster, type ExportOptions } from "@/components/exports/DayPoster";
-import { FullPoster } from "@/components/exports/FullPoster";
+import { eventDayKeys, type EventRow } from "@/lib/calendarbetter";
+import { fetchCategories, fetchElements, fetchEvent, savePosterOptions } from "@/lib/api";
+import type { ExportOptions } from "@/components/exports/DayPoster";
+import { DayExport, FullExport, savedExportOptions } from "@/components/exports/ProgramPoster";
 import { PdfProgram } from "@/components/exports/PdfProgram";
 import { exportNodeToImage, exportNodeToPdf, slugify } from "@/lib/export-image";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 export const Route = createFileRoute("/events/$id/preview")({
   head: () => ({
     meta: [
-      { title: "Preview & export — Programio" },
+      { title: "Preview & export — CalendarBetter" },
       {
         name: "description",
         content:
           "Preview your event program and export it as a vertical day poster or a wide overview.",
       },
-      { property: "og:title", content: "Preview & export — Programio" },
+      { property: "og:title", content: "Preview & export — CalendarBetter" },
       { property: "og:description", content: "Export polished event schedule images." },
     ],
   }),
@@ -49,17 +49,24 @@ function PreviewPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [view, setView] = useState<PosterView>("day");
 
-  const [options, setOptions] = useState<ExportOptions>({
-    includeSubtitle: true,
-    includeLocation: true,
-    includeLogo: true,
-    includeGrid: true,
-    cardStyle: "paper",
-    cardOpacity: 1,
-    palette: "category",
-    locale: "nb-NO",
-    fontScale: 1.15,
+  // Unsaved edits; null until the user changes something, so the saved design shows first.
+  const [draft, setDraft] = useState<ExportOptions | null>(null);
+  const qc = useQueryClient();
+  const { mutate: persistOptions } = useMutation({
+    mutationFn: (o: ExportOptions) =>
+      savePosterOptions({ data: { eventId: id, options: o as EventRow["poster_options"] } }),
+    onSuccess: (_, o) =>
+      qc.setQueryData<EventRow | null>(["event", id], (old) =>
+        old ? { ...old, poster_options: o as EventRow["poster_options"] } : old,
+      ),
+    // Viewers can still try designs for their own downloads; only editors can save them.
+    onError: () => {},
   });
+  useEffect(() => {
+    if (!draft) return;
+    const timer = setTimeout(() => persistOptions(draft), 600);
+    return () => clearTimeout(timer);
+  }, [draft, persistOptions]);
 
   const eventQ = useQuery({
     queryKey: ["event", id],
@@ -118,7 +125,7 @@ function PreviewPage() {
   const days = eventDayKeys(event);
   const activeDay = dayKey && days.includes(dayKey) ? dayKey : days[0]!;
 
-  const posterOptions: ExportOptions = options;
+  const posterOptions: ExportOptions = draft ?? savedExportOptions(event);
 
   async function download(kind: PosterView) {
     const node =
@@ -191,7 +198,8 @@ function PreviewPage() {
                 </SheetTrigger>
 
                 <Button size="sm" variant="outline" onClick={() => setShareOpen(true)}>
-                  <Share2 className="mr-1 h-4 w-4" /> Share
+                  <Share2 className="h-4 w-4 sm:mr-1" />
+                  <span className="sr-only sm:not-sr-only">Share</span>
                 </Button>
               </div>
             </div>
@@ -216,17 +224,17 @@ function PreviewPage() {
 
         <main className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
           <SheetContent side="right" className="w-[85vw] p-0 sm:max-w-md lg:hidden">
-            <div className="h-full overflow-y-auto p-6">
-              <SheetHeader className="sr-only">
+            <div className="h-full overflow-y-auto p-6 pt-4">
+              <SheetHeader className="mb-4 pr-8 text-left">
                 <SheetTitle>Innstillinger</SheetTitle>
               </SheetHeader>
-              <GraphicsSettings options={options} onChange={setOptions} />
+              <GraphicsSettings options={posterOptions} onChange={setDraft} />
             </div>
           </SheetContent>
 
           <div className="mt-5 grid gap-6 lg:grid-cols-[360px_1fr]">
             <div className="hidden lg:sticky lg:top-20 lg:block lg:self-start">
-              <GraphicsSettings options={options} onChange={setOptions} />
+              <GraphicsSettings options={posterOptions} onChange={setDraft} />
             </div>
 
             <div className="min-w-0">
@@ -236,7 +244,7 @@ function PreviewPage() {
                     days={days}
                     activeDay={activeDay}
                     onSelect={setDayKey}
-                    locale={options.locale ?? "nb-NO"}
+                    locale={posterOptions.locale ?? "nb-NO"}
                   />
 
                   <Button
@@ -249,7 +257,7 @@ function PreviewPage() {
 
                   <div className="mt-4">
                     <ZoomStage measureKey={`day-${activeDay}-${JSON.stringify(posterOptions)}`}>
-                      <DayPoster
+                      <DayExport
                         ref={dayRef}
                         event={event}
                         categories={categories}
@@ -266,7 +274,7 @@ function PreviewPage() {
                     <ZoomStage
                       measureKey={`full-${elements.length}-${JSON.stringify(posterOptions)}`}
                     >
-                      <FullPoster
+                      <FullExport
                         ref={fullRef}
                         event={event}
                         categories={categories}

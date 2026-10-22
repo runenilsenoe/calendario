@@ -8,7 +8,7 @@ import {
   type CategoryRow,
   type ElementRow,
   type EventRow,
-} from "@/lib/programio";
+} from "@/lib/calendarbetter";
 import {
   accentColorFor,
   cardVisual,
@@ -17,9 +17,12 @@ import {
   spacedTicks,
   type CardStyle,
   type PaletteKey,
+  type PosterLayout,
 } from "@/lib/poster-style";
 
 export type ExportOptions = {
+  /** Overall poster design; defaults to the timeline. */
+  layout?: PosterLayout;
   includeSubtitle: boolean;
   includeLocation: boolean;
   includeLogo: boolean;
@@ -401,7 +404,9 @@ export const DayPoster = forwardRef<HTMLDivElement, Props>(function DayPoster(
           }}
         >
           <span>{options.includeLocation && event.location ? event.location : ""}</span>
-          <span style={{ letterSpacing: "0.24em", textTransform: "uppercase" }}>Programio</span>
+          <span style={{ letterSpacing: "0.24em", textTransform: "uppercase" }}>
+            CalendarBetter
+          </span>
         </footer>
       ) : null}
     </div>
