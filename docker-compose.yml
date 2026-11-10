@@ -6,6 +6,7 @@ services:
       DATABASE_URL: postgres://calendarbetter:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/calendarbetter
       DEFAULT_PHONE_PREFIX: ${DEFAULT_PHONE_PREFIX:-}
       ALLOW_SIGNUP: ${ALLOW_SIGNUP:-true}
+      ADMIN_IDENTIFIERS: ${ADMIN_IDENTIFIERS:-}
     depends_on:
       db:
         condition: service_healthy

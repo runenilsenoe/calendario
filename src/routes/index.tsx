@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowRight, CalendarDays, Download, MapPin, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AdminButton } from "@/components/AdminButton";
 import { useAuth } from "@/hooks/useAuth";
 
 type ProgramItem = { time: string; title: string; detail: string; category: number };
@@ -679,6 +680,7 @@ function Landing() {
           >
             Se eksempler
           </a>
+          <AdminButton />
           {!loading && (
             <Button asChild variant="ghost" size="sm">
               <Link to={user ? "/events" : "/auth"}>{user ? "Mine programmer" : "Logg inn"}</Link>

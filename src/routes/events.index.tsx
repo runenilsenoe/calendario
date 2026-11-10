@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { AdminButton } from "@/components/AdminButton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/events/")({
@@ -72,24 +73,27 @@ function EventsPage() {
         <Link to="/" className="text-sm uppercase tracking-[0.35em] text-muted-foreground">
           CalendarBetter
         </Link>
-        {user && !user.is_guest ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await signOut();
-              qc.clear();
-              qc.setQueryData(ME_KEY, null);
-              navigate({ to: "/" });
-            }}
-          >
-            Sign out
-          </Button>
-        ) : (
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/auth">Sign in</Link>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <AdminButton />
+          {user && !user.is_guest ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                await signOut();
+                qc.clear();
+                qc.setQueryData(ME_KEY, null);
+                navigate({ to: "/" });
+              }}
+            >
+              Sign out
+            </Button>
+          ) : (
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+          )}
+        </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 pb-24">

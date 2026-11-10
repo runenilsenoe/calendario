@@ -44,6 +44,7 @@ The app runs at http://localhost:3000.
 | --- | --- |
 | `DATABASE_URL` | Postgres connection string (set automatically by docker-compose) |
 | `DEFAULT_PHONE_PREFIX` | Country code added to phone numbers entered without one, e.g. `+47` |
+| `ADMIN_IDENTIFIERS` | Admin email addresses or international phone numbers, comma-separated. Admin access is disabled unless this is set in the deployment environment. |
 | `ALLOW_SIGNUP` | `false` disables creating new accounts |
 | `PORT` / `HOST` | Listen address of the Node server (default `3000` / `0.0.0.0` in Docker) |
 
@@ -109,3 +110,13 @@ TEST_BASE_URL=http://localhost:3000 node tests/guest-events.mjs
 The test creates events and a test account. It checks guest creation and editing,
 private access between browser sessions, public sharing, and transfer to an account
 on signup and sign-in. Use the same build for the running server and the test.
+
+The Admin button appears on the landing page and event list only for signed-in
+admin accounts. `/admin` shows totals and the 100 newest users and events. All admin
+data is protected on the server; the overview does not grant editing access to events.
+
+To test admin access, start the app against a disposable database with
+`ADMIN_IDENTIFIERS=admin-test@example.com,+4712345678`, then run
+`TEST_BASE_URL=http://localhost:3000 node tests/admin-access.mjs`. The test creates
+accounts and checks both allowed identifiers, rejected visitors/guests/ordinary
+users, and access after sign-in and sign-out.

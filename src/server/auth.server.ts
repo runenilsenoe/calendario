@@ -37,6 +37,22 @@ export function normalizeIdentifier(input: string) {
   return phone;
 }
 
+/** Kept on the server; clients only receive the resolved permission. */
+export function isAdminUser(user: SessionUser | null): boolean {
+  if (!user || user.is_guest) return false;
+  const identifiers = process.env["ADMIN_IDENTIFIERS"] ?? "";
+  return identifiers.split(",").some((identifier) => {
+    if (!identifier.trim()) return false;
+    return normalizeIdentifier(identifier) === user.identifier;
+  });
+}
+
+export async function requireAdmin() {
+  const user = await currentUser();
+  if (!isAdminUser(user)) throw new Error("Du har ikke tilgang til administrasjonen.");
+  return user!;
+}
+
 export async function hashPassword(password: string) {
   const salt = randomBytes(16);
   const hash = await scryptAsync(password, salt, 64);

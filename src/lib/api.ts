@@ -6,6 +6,8 @@ import {
   ensureEventOwner,
   endSession,
   hashPassword,
+  isAdminUser,
+  requireAdmin,
   normalizeIdentifier,
   requireEventAccess,
   startSession,
@@ -33,7 +35,10 @@ const pass = <T>(d: T) => d;
 
 /* ---------- auth ---------- */
 
-export const getMe = createServerFn().handler(() => currentUser());
+export const getMe = createServerFn().handler(async () => {
+  const user = await currentUser();
+  return user ? { ...user, is_admin: isAdminUser(user) } : null;
+});
 
 export const signUp = createServerFn({ method: "POST" })
   .validator(pass<{ identifier: string; password: string }>)
@@ -50,7 +55,8 @@ export const signUp = createServerFn({ method: "POST" })
     if (!user) throw new Error("An account with that email or phone number already exists");
     await claimGuestEvents(user.id);
     await startSession(user.id);
-    return { id: user.id, identifier, is_guest: false };
+    const me = { id: user.id, identifier, is_guest: false };
+    return { ...me, is_admin: isAdminUser(me) };
   });
 
 export const signIn = createServerFn({ method: "POST" })
@@ -65,7 +71,8 @@ export const signIn = createServerFn({ method: "POST" })
     }
     await claimGuestEvents(user.id);
     await startSession(user.id);
-    return { id: user.id, identifier, is_guest: false };
+    const me = { id: user.id, identifier, is_guest: false };
+    return { ...me, is_admin: isAdminUser(me) };
   });
 
 export const signOut = createServerFn({ method: "POST" }).handler(() => endSession());
@@ -271,3 +278,51 @@ export const removeCollaborator = createServerFn({ method: "POST" })
     const sql = await db();
     await sql`DELETE FROM event_collaborators WHERE id = ${data.id} AND event_id = ${data.eventId}`;
   });
+
+/* ---------- administration (read only) ---------- */
+
+export const fetchAdminOverview = createServerFn().handler(async () => {
+  await requireAdmin();
+  const sql = await db();
+  const [stats] = await sql<
+    {
+      registered_users: number;
+      guests: number;
+      events: number;
+      public_events: number;
+    }[]
+  >`
+    SELECT
+      (SELECT count(*)::int FROM users WHERE NOT is_guest) AS registered_users,
+      (SELECT count(*)::int FROM users WHERE is_guest) AS guests,
+      (SELECT count(*)::int FROM events) AS events,
+      (SELECT count(*)::int FROM events WHERE is_public) AS public_events`;
+  const users = await sql<
+    {
+      id: string;
+      identifier: string | null;
+      is_guest: boolean;
+      created_at: string;
+      event_count: number;
+    }[]
+  >`
+    SELECT u.id, CASE WHEN u.is_guest THEN NULL ELSE u.identifier END AS identifier,
+      u.is_guest, u.created_at,
+      (SELECT count(*)::int FROM events e WHERE e.user_id = u.id) AS event_count
+    FROM users u ORDER BY u.created_at DESC, u.id LIMIT 100`;
+  const events = await sql<
+    {
+      id: string;
+      name: string;
+      start_date: string;
+      end_date: string;
+      owner_identifier: string | null;
+      is_public: boolean;
+    }[]
+  >`
+    SELECT e.id, e.name, e.start_date, e.end_date,
+      CASE WHEN u.is_guest THEN NULL ELSE u.identifier END AS owner_identifier, e.is_public
+    FROM events e JOIN users u ON u.id = e.user_id
+    ORDER BY e.created_at DESC, e.id LIMIT 100`;
+  return { stats: stats!, users, events };
+});
